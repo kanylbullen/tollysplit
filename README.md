@@ -6,8 +6,10 @@ Supabase. Live på [tollesplit.vercel.app](https://tollesplit.vercel.app).
 ## Hur den funkar
 
 - **Skapa** en tollesplit (kräver inloggning, gated via `allowed_creators`-
-  tabellen — just nu bara johan@tollstorp.se). Inloggning sker med e-post +
-  engångskod/magisk länk via Supabase Auth.
+  tabellen — just nu bara johan@tollstorp.se). Inloggning sker med magisk
+  länk via Supabase Auth (PKCE — länken måste öppnas i samma webbläsare som
+  begärde den). OTP-kod i mejlet kräver egen SMTP (free tier tillåter inte
+  malländringar); kodfältet i UI:t fungerar då direkt.
 - **Dela länken** `/k/<hemlig-nyckel>` — alla med länken kan lägga in
   utgifter och överföringar utan konto, precis som Kittysplit.
 - **Saldon** räknas ut automatiskt med minimerade avräkningsförslag
