@@ -60,7 +60,8 @@ export function LoginForm() {
       <form onSubmit={verifyCode} className="space-y-4">
         <p className="rounded-xl bg-primary-soft/60 px-4 py-3 text-sm text-primary-dark">
           Mejl skickat till <strong>{email}</strong>. Klicka på länken i
-          mejlet, eller ange engångskoden här.
+          mejlet — öppna den i samma webbläsare som du använder nu. Innehåller
+          mejlet en engångskod kan du ange den här istället.
         </p>
         <div>
           <Label htmlFor="code">Engångskod</Label>
