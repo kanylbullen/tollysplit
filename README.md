@@ -1,68 +1,141 @@
 # Tollysplit
 
-Dela utgifter i grupp utan krångel — byggt med Next.js 16 och Supabase.
-Skapa en split, dela länken, och låt alla lägga in sina utlägg. Saldon och
-vem-betalar-vem räknas ut automatiskt, med Swish-betalning direkt från
-saldovyn.
+**Split shared expenses without the fuss.** Create a split, share the link, and
+let everyone add what they paid. Balances and who-owes-whom are calculated
+automatically — with one-tap Swish payments straight from the balance view.
 
-## Funktioner
+🔗 **Live:** [tollysplit.xuper.fun](https://tollysplit.xuper.fun)
 
-- **Inget konto behövs** för att skapa eller använda en split — den hemliga
-  länken är hela nyckeln. Valfri e-postinloggning gör att dina splits följer
-  med mellan enheter.
-- **Flexibel delning:** lika, viktade andelar eller exakta belopp, med
-  öresfördelning enligt största-rest-metoden.
-- **Smarta avräkningar:** minimerat antal betalningar ("A betalar B X kr"),
-  bokförbara som överföringar.
-- **Swish:** deltagare kan lägga in sitt nummer och få en förifylld QR-kod
-  + app-länk på varje avräkningsrad (endast SEK).
-- **Mörkt/ljust läge**, svensk UI, integritets- & cookiepolicy.
+🌍 **Languages:** English · [Svenska](README.sv.md)
 
-## Arkitektur
+[![License: MIT](https://img.shields.io/badge/License-MIT-0d9488.svg)](LICENSE)
+&nbsp;Next.js 16 · Supabase · Tailwind v4
 
-- **Ingen service-role-nyckel i appen.** All dataåtkomst går via
-  `security definer`-RPC:er i Postgres (`kitty_data`, `save_entry`, …) där den
-  hemliga nyckeln i URL:en är capability. RLS är aktiverat utan policies
-  (deny-all) på samtliga tabeller och direkt-grants är återkallade — appen
-  använder enbart den publika publishable-nyckeln. Hela schemat finns i
+---
+
+## Features
+
+- **No account needed** to create or use a split — the secret link *is* the
+  key. Optional email sign-in just makes your splits follow you across devices.
+- **Flexible splitting:** equal, weighted shares, or exact amounts, with cent
+  rounding handled by the largest-remainder method.
+- **Smart settlements:** the minimum number of payments ("A pays B X kr"),
+  bookable as transfers.
+- **Payments built for the Nordics** — see below.
+- **Dark / light / system theme**, privacy & cookie policy, cookie-less
+  analytics.
+
+## 🇸🇪 Payments — Swish first
+
+Tollysplit leans into the **Swedish market**: when a split is in SEK and the
+recipient has saved a Swish number, every settlement row gets a **"Swisha"
+button** that shows a prefilled QR code (recipient, exact amount, and the split
+name as the message) and an **"Open Swish"** deep link that launches the app
+with everything filled in on mobile. One tap, done.
+
+This works because **Swish exposes a genuinely open, agreement-free API** — a
+public prefilled deep link (`app.swish.nu`) and a public QR endpoint. No
+merchant contract, no API keys, no fuss. It's refreshingly developer-friendly.
+
+Sadly, the **other Nordic wallets don't offer the same.** Vipps (Norway) and
+MobilePay (Denmark/Finland, both now Vipps MobilePay) only expose
+amount-prefilled flows through their **merchant ePayment/QR APIs, which require
+a business agreement, credentials, and route money to a company** rather than
+person-to-person. The only public artifact is a personal QR that encodes a
+phone number but carries no amount. So for Vipps, MobilePay and IBAN, Tollysplit
+does the honest thing: it stores the payment handle and shows it with a
+**copy button** next to the amount, so the payer can finish in their own app.
+If Vipps or MobilePay ever ship a Swish-style open P2P deep link, wiring it in
+is a small change — PRs welcome. 🤞
+
+## Architecture
+
+- **No service-role key in the app.** All data access goes through
+  `security definer` Postgres RPCs (`split_data`, `save_entry`, …) where the
+  secret split key in the URL is the capability. RLS is enabled with no
+  policies (deny-all) on every table and direct grants are revoked — the app
+  only ever holds the public publishable key. The full schema lives in
   [`supabase/migrations/`](supabase/migrations).
-- **Next.js App Router** + server actions; klienten är ren React utan
-  state-bibliotek. Tailwind v4.
-- **Integritet by design:** Swish-nummer raderas när alla är kvitt, splits
-  utan aktivitet gallras efter 6 månader, IP-hashar (spamskydd) raderas inom
-  ett dygn.
+- **Next.js App Router** + server actions; the client is plain React with no
+  state library. Tailwind v4.
+- **Privacy by design:** payment details are wiped once everyone is square,
+  inactive splits are purged after 6 months, and the spam-protection IP hash is
+  deleted within a day.
 
-## Kom igång
+## Run it locally
 
 ```bash
 npm install
-cp .env.example .env.local   # fyll i din egen Supabase-URL och anon-nyckel
+cp .env.example .env.local   # fill in your own Supabase URL + anon key
 npm run dev
 ```
 
-`.env.local` behöver:
+`.env.local`:
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://<ditt-projekt>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<din publishable key>
+NEXT_PUBLIC_SUPABASE_URL=https://<your-project>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your publishable key>
 ```
 
-Applicera databasschemat genom att köra migrationen i `supabase/migrations/`
-mot ditt Supabase-projekt (t.ex. via `supabase db push` eller dashboardens
-SQL-editor).
+## Deploy your own
 
-## Tester
+Tollysplit is built to be self-hostable on the free tiers of Supabase + Vercel.
 
-Split-, saldo- och avräkningslogiken i `src/lib/money.ts` är ren TypeScript
-och kan snabbtestas med `node --experimental-strip-types`.
+### 1. Supabase (database + auth)
 
-## Swish
+1. Create a project at [supabase.com](https://supabase.com) (the EU regions
+   keep data in Europe).
+2. Apply the schema: open the **SQL Editor** and run the contents of
+   [`supabase/migrations/20260610000000_baseline_schema.sql`](supabase/migrations),
+   or use the CLI:
+   ```bash
+   supabase link --project-ref <your-ref>
+   supabase db push
+   ```
+3. Grab **Project URL** and the **publishable (anon) key** from
+   *Project Settings → API*.
+4. *(Optional, for email sign-in)* Configure SMTP under *Authentication →
+   Emails* (e.g. a free [Resend](https://resend.com) account) and set the
+   **Site URL** + a `…/auth/confirm` redirect under *Authentication → URL
+   Configuration*. Sign-in is entirely optional — the app works without it.
 
-Pushade betalningsförfrågningar (notis direkt i mottagarens app) kräver Swish
-Handel med företagsavtal och certifikat, och är medvetet bortvalt. Istället
-används Swish publika app-länkar (`app.swish.nu`) och QR-API:t (proxat via
-`/api/swish-qr`), som fungerar person-till-person utan avtal.
+### 2. Vercel (hosting)
 
-## Licens
+1. Import the repo at [vercel.com](https://vercel.com/new).
+2. Add the two environment variables (Production, Preview, Development):
+   ```
+   NEXT_PUBLIC_SUPABASE_URL
+   NEXT_PUBLIC_SUPABASE_ANON_KEY
+   ```
+   Both are safe to expose — security relies on RLS + RPCs, not on hiding them.
+3. Deploy. That's it.
 
-MIT — se [LICENSE](LICENSE).
+### 3. Custom domain via Cloudflare (optional)
+
+1. In Vercel, add your domain under *Project → Settings → Domains*.
+2. In Cloudflare DNS, add a **CNAME** for your subdomain pointing to
+   `cname.vercel-dns.com`. Set it to **DNS-only (grey cloud)** so Vercel can
+   issue the TLS certificate cleanly.
+3. Add the same domain's `…/auth/confirm` URL to the Supabase redirect
+   allowlist if you use email sign-in.
+
+## Tests
+
+The split, balance and settlement logic in `src/lib/money.ts` is pure
+TypeScript and can be smoke-tested with `node --experimental-strip-types`.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+---
+
+<div align="center">
+
+If Tollysplit saved your group some bickering, you can
+
+[![Buy me a beer](https://img.shields.io/badge/Buy%20me%20a%20beer-%F0%9F%8D%BA-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/xuperfun)
+
+*built with love, coffee and beer*
+
+</div>
