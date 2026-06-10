@@ -1,5 +1,7 @@
 "use server";
 
+import { createHash } from "crypto";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -19,16 +21,27 @@ export async function createKittyAction(
   if (!title) return { error: "Ge din tollysplit ett namn." };
   if (names.length < 2) return { error: "Lägg till minst två deltagare." };
 
+  // Hashed client IP feeds the per-IP creation throttle in the database.
+  const headerStore = await headers();
+  const ip = (headerStore.get("x-forwarded-for") ?? "").split(",")[0].trim();
+  const ipHash = ip
+    ? createHash("sha256").update(`tollysplit:${ip}`).digest("hex").slice(0, 32)
+    : null;
+
   const supabase = await createClient();
   const { data: key, error } = await supabase.rpc("create_kitty", {
     p_title: title,
     p_currency: currency,
     p_names: names,
+    p_ip_hash: ipHash,
   });
 
   if (error || !key) {
-    if (error?.message.includes("not_allowed")) {
-      return { error: "Ditt konto har inte behörighet att skapa tollysplits." };
+    if (error?.message.includes("rate_limited")) {
+      return {
+        error:
+          "Det skapas ovanligt många tollysplits just nu — vänta en stund och prova igen.",
+      };
     }
     return { error: `Något gick fel: ${error?.message ?? "okänt fel"}` };
   }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { KittySummary } from "@/lib/types";
 import { BeerButton } from "@/components/BeerButton";
+import { MySplits } from "@/components/MySplits";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -9,15 +10,10 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let canCreate = false;
   let mine: KittySummary[] = [];
   if (user) {
-    const [canRes, mineRes] = await Promise.all([
-      supabase.rpc("can_create"),
-      supabase.rpc("my_kitties"),
-    ]);
-    canCreate = canRes.data === true;
-    mine = (mineRes.data as KittySummary[] | null) ?? [];
+    const { data } = await supabase.rpc("my_kitties");
+    mine = (data as KittySummary[] | null) ?? [];
   }
 
   return (
@@ -53,57 +49,20 @@ export default async function Home() {
         </h1>
         <p className="mx-auto mb-8 max-w-md text-lg text-stone-500">
           Samla resans alla utlägg på ett ställe och se direkt vem som ska få
-          tillbaka vad. Inga konton för deltagarna — bara en länk.
+          tillbaka vad. Inga konton — bara en länk.
         </p>
-        {canCreate ? (
-          <Link
-            href="/new"
-            className="inline-block rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary-dark"
-          >
-            Skapa en ny tollysplit
-          </Link>
-        ) : user ? (
-          <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            Ditt konto ({user.email}) har inte behörighet att skapa nya
-            tollysplits ännu.
-          </p>
-        ) : (
-          <Link
-            href="/login"
-            className="inline-block rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary-dark"
-          >
-            Logga in för att skapa
-          </Link>
-        )}
+        <Link
+          href="/new"
+          className="inline-block rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary-dark"
+        >
+          Skapa en ny tollysplit
+        </Link>
+        <p className="mt-3 text-sm text-stone-400">
+          Ingen inloggning behövs.
+        </p>
       </section>
 
-      {mine.length > 0 && (
-        <section className="mb-12">
-          <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-stone-400">
-            Dina tollysplits
-          </h2>
-          <ul className="space-y-2">
-            {mine.map((k) => (
-              <li key={k.key}>
-                <Link
-                  href={`/k/${k.key}`}
-                  className="flex items-center justify-between rounded-2xl border border-stone-200/80 bg-surface px-4 py-3.5 shadow-sm transition-colors hover:border-primary/40"
-                >
-                  <div>
-                    <div className="font-semibold">{k.title}</div>
-                    <div className="text-sm text-stone-400">
-                      {k.participant_count} deltagare · {k.entry_count}{" "}
-                      {k.entry_count === 1 ? "post" : "poster"} · skapad{" "}
-                      {new Date(k.created_at).toLocaleDateString("sv-SE")}
-                    </div>
-                  </div>
-                  <span className="text-stone-300">→</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <MySplits server={mine} />
 
       <section className="grid gap-4 sm:grid-cols-3">
         {[

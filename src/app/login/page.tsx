@@ -26,8 +26,9 @@ export default async function LoginPage({
       </Link>
       <h1 className="mb-2 text-2xl font-black tracking-tight">Logga in</h1>
       <p className="mb-6 text-stone-500">
-        Ange din e-postadress så skickar vi en engångskod och en
-        inloggningslänk.
+        Inloggning är valfri — den gör att tollysplits du skapar följer med
+        mellan dina enheter. Ange din e-postadress så skickar vi en
+        engångskod och en inloggningslänk.
       </p>
       {error === "invalid_link" && (
         <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">

@@ -27,6 +27,24 @@ export function KittyApp({ data }: { data: KittyData }) {
   const [identityOpen, setIdentityOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
+  // Remember visited splits so the landing page can list them per device.
+  useEffect(() => {
+    try {
+      const raw = JSON.parse(
+        localStorage.getItem("tollysplit:visited") ?? "[]"
+      ) as { key: string; title: string; at: number }[];
+      const rest = raw.filter((v) => v.key !== kitty.key);
+      rest.unshift({ key: kitty.key, title: kitty.title, at: Date.now() });
+      localStorage.setItem("tollysplit:visited", JSON.stringify(rest.slice(0, 50)));
+    } catch {
+      // corrupt entry — overwrite with just this split
+      localStorage.setItem(
+        "tollysplit:visited",
+        JSON.stringify([{ key: kitty.key, title: kitty.title, at: Date.now() }])
+      );
+    }
+  }, [kitty.key, kitty.title]);
+
   useEffect(() => {
     const stored = localStorage.getItem(storageKey);
     if (stored && (stored === "viewer" || participants.some((p) => p.id === stored))) {
