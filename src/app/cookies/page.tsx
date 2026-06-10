@@ -48,9 +48,12 @@ export default function CookiesPage() {
           <h2 className="mb-1.5 font-bold">Det som inte finns</h2>
           <p className="text-sm leading-relaxed text-stone-500">
             Inga analyscookies, inga annonsnätverk, ingen
-            tredjepartsspårning, inga ”vi och våra 847 partners”. Eftersom
-            allt vi använder är strikt nödvändigt för funktionen kräver
-            lagen inget samtycke — notisen du såg är bara information.
+            tredjepartsspårning, inga ”vi och våra 847 partners”. Vi räknar
+            sidvisningar med Vercels webbstatistik, men den är helt
+            cookiefri och anonym — den kan inte känna igen dig mellan besök
+            eller följa dig till andra sajter. Eftersom allt vi använder är
+            strikt nödvändigt eller cookiefritt kräver lagen inget samtycke
+            — notisen du såg är bara information.
           </p>
         </section>
       </div>

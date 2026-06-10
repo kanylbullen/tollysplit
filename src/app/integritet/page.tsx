@@ -35,17 +35,20 @@ const SECTIONS: [string, React.ReactNode][] = [
       Alla som har den hemliga länken till en split kan se och ändra dess
       innehåll — det är så Tollysplit fungerar, precis som ett delat
       anteckningsblock. Dela länken bara med dem som ska vara med. Ingen
-      data säljs, delas eller används för reklam. Ingen spårning, inga
-      analysverktyg, inga tredjepartscookies.
+      data säljs, delas eller används för reklam. Ingen spårning över
+      webben, inga tredjepartscookies. Vi använder Vercels cookiefria
+      webbstatistik som räknar sidvisningar anonymt — den kan inte följa
+      dig som person, mellan besök eller mellan sajter.
     </>,
   ],
   [
     "Underleverantörer",
     <>
-      Tollysplit driftas på Vercel (hosting) och Supabase (databas i
-      Stockholm, EU). Inloggningsmejl skickas via Resend. När en Swish-QR
-      visas skickas mottagarens nummer, belopp och splittens namn till Swish
-      officiella QR-tjänst för att rita koden — inget mer.
+      Tollysplit driftas på Vercel (hosting och anonym, cookiefri
+      besöksstatistik) och Supabase (databas i Stockholm, EU).
+      Inloggningsmejl skickas via Resend. När en Swish-QR visas skickas
+      mottagarens nummer, belopp och splittens namn till Swish officiella
+      QR-tjänst för att rita koden — inget mer.
     </>,
   ],
   [
