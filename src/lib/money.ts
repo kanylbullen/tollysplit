@@ -106,6 +106,21 @@ export function settlements(bal: Map<string, number>): Settlement[] {
   return plan;
 }
 
+/** Each participant's share of all expenses (transfers excluded). */
+export function shareOfTotal(
+  participants: Participant[],
+  entries: Entry[]
+): Map<string, number> {
+  const map = new Map<string, number>(participants.map((p) => [p.id, 0]));
+  for (const entry of entries) {
+    if (entry.kind !== "expense") continue;
+    for (const [pid, cents] of expenseSplit(entry)) {
+      map.set(pid, (map.get(pid) ?? 0) + cents);
+    }
+  }
+  return map;
+}
+
 /** Sum of all expense entries (transfers excluded). */
 export function totalSpent(entries: Entry[]): number {
   return entries

@@ -103,7 +103,7 @@ export function KittyApp({ data }: { data: KittyData }) {
           {(
             [
               ["balances", "Saldon"],
-              ["entries", "Utgifter"],
+              ["entries", "Transaktioner"],
             ] as const
           ).map(([value, label]) => (
             <button
@@ -138,6 +138,9 @@ export function KittyApp({ data }: { data: KittyData }) {
           participants={participants}
           currency={kitty.currency}
           meId={meId}
+          onEditEntry={(entry) =>
+            setEntryDialog({ open: true, entry, kind: entry.kind })
+          }
         />
       )}
 

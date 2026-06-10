@@ -2,7 +2,13 @@
 
 import { useState, useTransition } from "react";
 import type { Entry, Participant } from "@/lib/types";
-import { balances, formatMoney, settlements, totalSpent } from "@/lib/money";
+import {
+  balances,
+  formatMoney,
+  settlements,
+  shareOfTotal,
+  totalSpent,
+} from "@/lib/money";
 import { saveEntryAction } from "@/app/k/[key]/actions";
 import { avatarColor, initials, todayIso } from "./helpers";
 
@@ -12,17 +18,21 @@ export function BalancesView({
   participants,
   currency,
   meId,
+  onEditEntry,
 }: {
   kittyKey: string;
   entries: Entry[];
   participants: Participant[];
   currency: string;
   meId: string | null;
+  onEditEntry: (entry: Entry) => void;
 }) {
   const byId = new Map(participants.map((p) => [p.id, p]));
   const bal = balances(participants, entries);
   const plan = settlements(bal);
   const total = totalSpent(entries);
+  const shares = shareOfTotal(participants, entries);
+  const paidTransfers = entries.filter((e) => e.kind === "transfer");
   const maxAbs = Math.max(1, ...[...bal.values()].map(Math.abs));
 
   const [pending, startTransition] = useTransition();
@@ -54,13 +64,18 @@ export function BalancesView({
         <h3 className="mb-2 px-1 text-sm font-bold uppercase tracking-wide text-stone-400">
           Så blir ni kvitt
         </h3>
-        {plan.length === 0 ? (
+        {plan.length === 0 && paidTransfers.length === 0 ? (
           <div className="rounded-2xl border border-stone-200/80 bg-surface p-5 text-center shadow-sm">
             <p className="font-semibold">Allt är uppgjort 🎉</p>
             <p className="text-sm text-stone-500">Ingen är skyldig någon något.</p>
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border border-stone-200/80 bg-surface shadow-sm">
+            {plan.length === 0 && (
+              <div className="px-4 py-3.5 text-center">
+                <p className="font-semibold">Allt är uppgjort 🎉</p>
+              </div>
+            )}
             {plan.map((s, i) => {
               const from = byId.get(s.from);
               const to = byId.get(s.to);
@@ -86,6 +101,29 @@ export function BalancesView({
                     {settling === id ? "Bokför…" : "Markera betald"}
                   </button>
                 </div>
+              );
+            })}
+            {paidTransfers.map((t) => {
+              const from = byId.get(t.paid_by);
+              const to = t.transfer_to ? byId.get(t.transfer_to) : null;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => onEditEntry(t)}
+                  className="flex w-full items-center gap-3 border-t border-stone-100 px-4 py-3 text-left opacity-60 transition-opacity hover:opacity-100"
+                >
+                  <span className="min-w-0 flex-1 line-through decoration-stone-400">
+                    <span className="font-semibold">{from?.name}</span>
+                    <span className="text-stone-400"> betalar </span>
+                    <span className="font-semibold">{to?.name}</span>
+                    <span className="block font-bold text-stone-500">
+                      {formatMoney(t.amount_cents, currency)}
+                    </span>
+                  </span>
+                  <span className="text-sm font-semibold text-positive">
+                    Betald ✓
+                  </span>
+                </button>
               );
             })}
           </div>
@@ -130,11 +168,16 @@ export function BalancesView({
                     />
                   </span>
                 </span>
-                <span
-                  className={`font-bold ${value > 0 ? "text-positive" : value < 0 ? "text-negative" : "text-stone-400"}`}
-                >
-                  {value > 0 ? "+" : ""}
-                  {formatMoney(value, currency)}
+                <span className="text-right">
+                  <span
+                    className={`block font-bold ${value > 0 ? "text-positive" : value < 0 ? "text-negative" : "text-stone-400"}`}
+                  >
+                    {value > 0 ? "+" : ""}
+                    {formatMoney(value, currency)}
+                  </span>
+                  <span className="block text-xs text-stone-400">
+                    andel {formatMoney(shares.get(p.id) ?? 0, currency)}
+                  </span>
                 </span>
               </div>
             );
