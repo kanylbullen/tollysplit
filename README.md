@@ -62,3 +62,7 @@ Pushade betalningsförfrågningar (notis direkt i mottagarens app) kräver Swish
 Handel med företagsavtal och certifikat, och är medvetet bortvalt. Istället
 används Swish publika app-länkar (`app.swish.nu`) och QR-API:t (proxat via
 `/api/swish-qr`), som fungerar person-till-person utan avtal.
+
+## Licens
+
+MIT — se [LICENSE](LICENSE).
