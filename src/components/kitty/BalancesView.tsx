@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { track } from "@vercel/analytics";
 import type { Entry, Participant } from "@/lib/types";
 import {
   balances,
@@ -81,6 +82,7 @@ export function BalancesView({
         shares: [],
       });
       if (!result.ok) setError(result.error);
+      else track("settlement_paid");
       setSettling(null);
     });
   }
@@ -151,6 +153,7 @@ export function BalancesView({
                     {useSwish && to?.swish_number && (
                       <button
                         onClick={() => {
+                          track("swish_dialog_opened");
                           setSwishPayment({
                             fromName: from?.name ?? "?",
                             toName: to.name,

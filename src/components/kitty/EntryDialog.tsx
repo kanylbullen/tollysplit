@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import { track } from "@vercel/analytics";
 import type { Entry, EntryKind, Participant } from "@/lib/types";
 import { formatMoney, parseAmount } from "@/lib/money";
 import {
@@ -182,7 +183,10 @@ export function EntryDialog({
     startTransition(async () => {
       const result = await saveEntryAction(kittyKey, input);
       if (!result.ok) setError(result.error);
-      else onClose();
+      else {
+        track("entry_saved", { kind, isEdit: Boolean(entry) });
+        onClose();
+      }
     });
   }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@vercel/analytics";
 import { Dialog } from "@/components/ui";
 import { formatMoney } from "@/lib/money";
 import { formatSwishNumber, swishAppLink } from "@/lib/swish";
@@ -53,6 +54,7 @@ export function SwishDialog({
         </p>
         <a
           href={swishAppLink(payment.toNumber, payment.amountCents, payment.message)}
+          onClick={() => track("swish_app_opened")}
           className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-white shadow-md transition-colors hover:bg-primary-dark"
         >
           Öppna Swish-appen

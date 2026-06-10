@@ -3,6 +3,7 @@
 import { createHash } from "crypto";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { track } from "@vercel/analytics/server";
 import { createClient } from "@/lib/supabase/server";
 
 export type CreateState = { error: string } | null;
@@ -46,5 +47,6 @@ export async function createKittyAction(
     return { error: `Något gick fel: ${error?.message ?? "okänt fel"}` };
   }
 
+  await track("split_created", { participants: names.length, currency });
   redirect(`/k/${key}`);
 }
