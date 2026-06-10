@@ -26,7 +26,10 @@ export default async function Home() {
           tollesplit
         </span>
         {user ? (
-          <form action="/auth/signout" method="post">
+          <form action="/auth/signout" method="post" className="flex items-center gap-3">
+            <span className="hidden text-sm text-stone-400 sm:inline">
+              Inloggad som {user.email}
+            </span>
             <button className="text-sm font-medium text-stone-500 hover:text-ink">
               Logga ut
             </button>

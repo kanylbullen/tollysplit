@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button, Input, Label } from "@/components/ui";
@@ -13,6 +13,23 @@ export function LoginForm() {
   const [step, setStep] = useState<"email" | "verify">("email");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // The magic link usually opens in a new tab; poll for the session here so
+  // this tab follows along instead of sitting on the code prompt forever.
+  useEffect(() => {
+    if (step !== "verify") return;
+    const timer = window.setInterval(async () => {
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
+      if (session) {
+        window.clearInterval(timer);
+        router.push("/");
+        router.refresh();
+      }
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, [step, router]);
 
   async function sendCode(e: React.FormEvent) {
     e.preventDefault();
