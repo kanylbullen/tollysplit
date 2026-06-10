@@ -18,6 +18,7 @@ export type Payment = {
   toType: PaymentType;
   toValue: string;
   amountCents: number;
+  currency: string;
   message: string;
 };
 
@@ -54,7 +55,7 @@ export function PaymentDialog({
           {label}
         </p>
         <p className="text-3xl font-black tracking-tight">
-          {formatMoney(payment.amountCents, "SEK")}
+          {formatMoney(payment.amountCents, payment.currency)}
         </p>
 
         {rich && open && (
@@ -92,7 +93,7 @@ export function PaymentDialog({
         ) : (
           <p className="text-sm text-stone-500">
             Öppna {label} i din telefon och betala{" "}
-            {formatMoney(payment.amountCents, "SEK")} till uppgiften ovan.
+            {formatMoney(payment.amountCents, payment.currency)} till uppgiften ovan.
           </p>
         )}
 

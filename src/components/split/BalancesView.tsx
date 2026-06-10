@@ -187,6 +187,7 @@ export function BalancesView({
                             toType: to!.payment_type!,
                             toValue: to!.payment_value!,
                             amountCents: s.amount_cents,
+                            currency,
                             message: splitTitle,
                           });
                           setPayOpen(true);
