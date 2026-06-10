@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Entry, EntryKind, KittyData } from "@/lib/types";
+import { BeerButton } from "@/components/BeerButton";
 import { EntriesView } from "./EntriesView";
 import { BalancesView } from "./BalancesView";
 import { EntryDialog } from "./EntryDialog";
@@ -121,28 +122,33 @@ export function KittyApp({ data }: { data: KittyData }) {
         </nav>
       </header>
 
-      {tab === "entries" ? (
-        <EntriesView
-          entries={entries}
-          participants={participants}
-          currency={kitty.currency}
-          meId={meId}
-          onEdit={(entry) =>
-            setEntryDialog({ open: true, entry, kind: entry.kind })
-          }
-        />
-      ) : (
-        <BalancesView
-          kittyKey={kitty.key}
-          entries={entries}
-          participants={participants}
-          currency={kitty.currency}
-          meId={meId}
-          onEditEntry={(entry) =>
-            setEntryDialog({ open: true, entry, kind: entry.kind })
-          }
-        />
-      )}
+      <div className="pb-28">
+        {tab === "entries" ? (
+          <EntriesView
+            entries={entries}
+            participants={participants}
+            currency={kitty.currency}
+            meId={meId}
+            onEdit={(entry) =>
+              setEntryDialog({ open: true, entry, kind: entry.kind })
+            }
+          />
+        ) : (
+          <BalancesView
+            kittyKey={kitty.key}
+            entries={entries}
+            participants={participants}
+            currency={kitty.currency}
+            meId={meId}
+            onEditEntry={(entry) =>
+              setEntryDialog({ open: true, entry, kind: entry.kind })
+            }
+          />
+        )}
+        <footer className="mt-10 flex justify-center">
+          <BeerButton />
+        </footer>
+      </div>
 
       <div className="fixed inset-x-0 bottom-0 z-10 border-t border-stone-200/60 bg-cream/90 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-2xl gap-2">

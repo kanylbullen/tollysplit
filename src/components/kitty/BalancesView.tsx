@@ -59,7 +59,7 @@ export function BalancesView({
   }
 
   return (
-    <div className="space-y-6 pb-28">
+    <div className="space-y-6">
       <section>
         <h3 className="mb-2 px-1 text-sm font-bold uppercase tracking-wide text-stone-400">
           Så blir ni kvitt

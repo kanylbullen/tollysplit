@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { KittySummary } from "@/lib/types";
+import { BeerButton } from "@/components/BeerButton";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -120,14 +121,7 @@ export default async function Home() {
       </section>
 
       <footer className="mt-16 flex flex-col items-center gap-4 text-center text-xs text-stone-400">
-        <a
-          href="https://buymeacoffee.com/xuperfun"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:scale-105 hover:bg-primary-dark"
-        >
-          <span className="text-base">🍺</span> Buy me a beer
-        </a>
+        <BeerButton />
         <span>tollysplit · byggd med kärlek, kaffe och öl</span>
       </footer>
     </main>
