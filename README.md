@@ -8,12 +8,13 @@ token finns i Phase-appen `homelab` (`CLOUDFLARE_DNS_TOKEN`).
 
 ## Hur den funkar
 
-- **Skapa** en tollesplit (kräver inloggning — alla mejladresser är välkomna
-  sedan 2026-06-10; den tidigare `allowed_creators`-allowlisten är borttagen).
-  Inloggning sker med magisk länk via Supabase Auth (PKCE — länken måste
-  öppnas i samma webbläsare som begärde den). OTP-kod i mejlet kräver egen
-  SMTP (free tier tillåter inte malländringar); kodfältet i UI:t fungerar då
-  direkt.
+- **Skapa** en tollysplit — ingen inloggning krävs (kittysplit-modellen,
+  sedan 2026-06-10). Spam-broms: max 10 skapade/timme per IP-hash och
+  100/timme globalt (i `create_kitty`). Inloggning (mejl + engångskod via
+  Resend-SMTP) är *valfri* och gör bara att ens splits följer med mellan
+  enheter; utan den listas besökta splits per enhet via localStorage
+  (`tollysplit:visited`). Obs: /auth/confirm är en sida med knapp eftersom
+  M365 Safe Links förhandsklickar länkar och annars förbrukar engångstoken.
 - **Dela länken** `/k/<hemlig-nyckel>` — alla med länken kan lägga in
   utgifter och överföringar utan konto, precis som Kittysplit.
 - **Saldon** räknas ut automatiskt med minimerade avräkningsförslag
