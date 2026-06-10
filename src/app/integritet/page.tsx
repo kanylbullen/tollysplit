@@ -53,7 +53,11 @@ const SECTIONS: [string, React.ReactNode][] = [
     <>
       Loggar du in sätts en sessionscookie — det är allt. Listan ”Dina
       tollysplits” och ditt ”vem är du”-val sparas lokalt i din webbläsare
-      (localStorage) och lämnar aldrig din enhet.
+      (localStorage) och lämnar aldrig din enhet. Detaljer finns i{" "}
+      <Link href="/cookies" className="text-primary hover:text-primary-dark">
+        cookiepolicyn
+      </Link>
+      .
     </>,
   ],
   [

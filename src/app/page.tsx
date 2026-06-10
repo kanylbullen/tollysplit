@@ -86,6 +86,10 @@ export default async function Home() {
           tollysplit · byggd med kärlek, kaffe och öl ·{" "}
           <Link href="/integritet" className="hover:text-ink">
             integritetspolicy
+          </Link>{" "}
+          ·{" "}
+          <Link href="/cookies" className="hover:text-ink">
+            cookies
           </Link>
         </span>
       </footer>

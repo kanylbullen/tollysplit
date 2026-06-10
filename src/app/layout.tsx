@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { CookieNotice } from "@/components/CookieNotice";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
+          <CookieNotice />
         </ThemeProvider>
       </body>
     </html>
