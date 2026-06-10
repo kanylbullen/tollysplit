@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui";
+import { useI18n } from "@/lib/i18n/client";
 
 /**
  * Email scanners (e.g. Microsoft Safe Links) prefetch links in emails, which
@@ -23,6 +24,7 @@ export function ConfirmClient({
   code: string | null;
   next: string;
 }) {
+  const { dict } = useI18n();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export function ConfirmClient({
     if (!code) return;
     (async () => {
       const { error } = await createClient().auth.exchangeCodeForSession(code);
-      if (error) setError("Länken är ogiltig eller har gått ut.");
+      if (error) setError(dict.confirm.invalid);
       else {
         router.push(safeNext);
         router.refresh();
@@ -55,7 +57,7 @@ export function ConfirmClient({
     });
     if (error) {
       setBusy(false);
-      setError("Länken är ogiltig eller har gått ut.");
+      setError(dict.confirm.invalid);
       return;
     }
     router.push(safeNext);
@@ -72,25 +74,22 @@ export function ConfirmClient({
       {error || invalid ? (
         <>
           <p className="mb-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error ?? "Länken är ogiltig eller har gått ut."} Begär en ny kod
-            på inloggningssidan.
+            {error ?? dict.confirm.invalid} {dict.confirm.invalidMore}
           </p>
           <Button onClick={() => router.push("/login")}>
-            Till inloggningen
+            {dict.confirm.toLogin}
           </Button>
         </>
       ) : code ? (
-        <p className="text-stone-500">Loggar in…</p>
+        <p className="text-stone-500">{dict.confirm.loggingIn}</p>
       ) : (
         <>
           <h1 className="mb-2 text-2xl font-black tracking-tight">
-            Bekräfta inloggning
+            {dict.confirm.heading}
           </h1>
-          <p className="mb-6 text-stone-500">
-            Tryck på knappen för att logga in på Tollysplit.
-          </p>
+          <p className="mb-6 text-stone-500">{dict.confirm.body}</p>
           <Button onClick={confirm} disabled={busy} className="px-8">
-            {busy ? "Loggar in…" : "Logga in"}
+            {busy ? dict.confirm.loggingIn : dict.confirm.login}
           </Button>
         </>
       )}

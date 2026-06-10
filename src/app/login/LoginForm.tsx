@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button, Input, Label } from "@/components/ui";
+import { useI18n } from "@/lib/i18n/client";
 
 export function LoginForm() {
+  const { dict, t } = useI18n();
   const router = useRouter();
   const supabase = createClient();
   const [email, setEmail] = useState("");
@@ -37,17 +39,14 @@ export function LoginForm() {
     setError(null);
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/confirm`,
-      },
+      options: { emailRedirectTo: `${window.location.origin}/auth/confirm` },
     });
     setBusy(false);
     if (error) {
       setError(
-        error.message.includes("rate limit") ||
-          error.status === 429
-          ? "För många försök just nu — vänta en stund och prova igen."
-          : `Kunde inte skicka mejlet: ${error.message}`
+        error.message.includes("rate limit") || error.status === 429
+          ? dict.login.errRate
+          : t(dict.login.errSend, { msg: error.message })
       );
       return;
     }
@@ -65,7 +64,7 @@ export function LoginForm() {
     });
     setBusy(false);
     if (error) {
-      setError("Fel kod, eller så har den gått ut. Prova igen.");
+      setError(dict.login.errCode);
       return;
     }
     router.push("/");
@@ -76,12 +75,10 @@ export function LoginForm() {
     return (
       <form onSubmit={verifyCode} className="space-y-4">
         <p className="rounded-xl bg-primary-soft/60 px-4 py-3 text-sm text-primary-dark">
-          Mejl skickat till <strong>{email}</strong>. Ange engångskoden här,
-          eller klicka på länken i mejlet (i samma webbläsare som du använder
-          nu).
+          {t(dict.login.codeSent, { email })}
         </p>
         <div>
-          <Label htmlFor="code">Engångskod</Label>
+          <Label htmlFor="code">{dict.login.code}</Label>
           <Input
             id="code"
             inputMode="numeric"
@@ -94,7 +91,7 @@ export function LoginForm() {
         </div>
         {error && <p className="text-sm text-negative">{error}</p>}
         <Button type="submit" disabled={busy || code.trim().length < 6} className="w-full">
-          {busy ? "Verifierar…" : "Logga in"}
+          {busy ? dict.login.verifying : dict.login.verify}
         </Button>
         <button
           type="button"
@@ -105,7 +102,7 @@ export function LoginForm() {
           }}
           className="w-full text-sm text-stone-500 hover:text-ink"
         >
-          Använd en annan adress
+          {dict.login.otherEmail}
         </button>
       </form>
     );
@@ -114,12 +111,12 @@ export function LoginForm() {
   return (
     <form onSubmit={sendCode} className="space-y-4">
       <div>
-        <Label htmlFor="email">E-postadress</Label>
+        <Label htmlFor="email">{dict.login.email}</Label>
         <Input
           id="email"
           type="email"
           autoComplete="email"
-          placeholder="din@mejl.se"
+          placeholder={dict.login.emailPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -127,7 +124,7 @@ export function LoginForm() {
       </div>
       {error && <p className="text-sm text-negative">{error}</p>}
       <Button type="submit" disabled={busy} className="w-full">
-        {busy ? "Skickar…" : "Skicka inloggningslänk"}
+        {busy ? dict.login.sending : dict.login.send}
       </Button>
     </form>
   );

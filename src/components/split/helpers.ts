@@ -24,18 +24,23 @@ export function initials(name: string): string {
     .toUpperCase();
 }
 
-export function formatDateHeading(isoDate: string): string {
+export function formatDateHeading(
+  isoDate: string,
+  locale: string,
+  todayLabel: string,
+  yesterdayLabel: string
+): string {
   const today = new Date();
   const toIso = (d: Date) =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  if (isoDate === toIso(today)) return "Idag";
+  if (isoDate === toIso(today)) return todayLabel;
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
-  if (isoDate === toIso(yesterday)) return "Igår";
+  if (isoDate === toIso(yesterday)) return yesterdayLabel;
 
   const date = new Date(`${isoDate}T00:00:00`);
   const sameYear = date.getFullYear() === today.getFullYear();
-  return new Intl.DateTimeFormat("sv-SE", {
+  return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "long",
     ...(sameYear ? {} : { year: "numeric" }),

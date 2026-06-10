@@ -5,27 +5,24 @@ import { createClient } from "@/lib/supabase/server";
 import { balances } from "@/lib/money";
 import type { SplitData } from "@/lib/types";
 
+// On failure, `error` is a stable code (see dict.errors) the client translates.
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
-const ERROR_MESSAGES: Record<string, string> = {
-  split_not_found: "Den här tollyspliten finns inte längre.",
-  participant_has_entries:
-    "Deltagaren har utgifter eller överföringar och kan inte tas bort.",
-  participant_not_found: "Deltagaren hittades inte.",
-  entry_not_found: "Posten hittades inte.",
-  name_required: "Namnet får inte vara tomt.",
-  bad_amount: "Beloppet måste vara större än noll.",
-  shares_required: "Minst en person måste vara med och dela.",
-  bad_recipient: "Välj en annan mottagare än avsändaren.",
-  bad_payment_type: "Okänt betalsätt.",
-  bad_payment_value: "Ogiltig uppgift — kontrollera numret eller IBAN.",
-};
+const ERROR_CODES = [
+  "split_not_found",
+  "participant_has_entries",
+  "participant_not_found",
+  "entry_not_found",
+  "name_required",
+  "bad_amount",
+  "shares_required",
+  "bad_recipient",
+  "bad_payment_type",
+  "bad_payment_value",
+];
 
-function friendly(message: string | undefined): string {
-  for (const [code, text] of Object.entries(ERROR_MESSAGES)) {
-    if (message?.includes(code)) return text;
-  }
-  return `Något gick fel: ${message ?? "okänt fel"}`;
+function errorCode(message: string | undefined): string {
+  return ERROR_CODES.find((code) => message?.includes(code)) ?? "unknown";
 }
 
 async function rpc(
@@ -35,7 +32,7 @@ async function rpc(
 ): Promise<ActionResult> {
   const supabase = await createClient();
   const { error } = await supabase.rpc(fn, args);
-  if (error) return { ok: false, error: friendly(error.message) };
+  if (error) return { ok: false, error: errorCode(error.message) };
   revalidatePath(`/k/${key}`);
   return { ok: true };
 }

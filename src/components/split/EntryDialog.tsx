@@ -10,6 +10,8 @@ import {
   type EntryInput,
 } from "@/app/k/[key]/actions";
 import { Button, Dialog, Input, Label, Select } from "@/components/ui";
+import { useI18n } from "@/lib/i18n/client";
+import { LOCALE_INTL } from "@/lib/i18n/config";
 import { todayIso } from "./helpers";
 
 type SplitMode = "equal" | "parts" | "exact";
@@ -39,6 +41,8 @@ export function EntryDialog({
   initialKind: EntryKind;
   meId: string | null;
 }) {
+  const { dict, t, te, locale } = useI18n();
+  const money = (cents: number) => formatMoney(cents, currency, LOCALE_INTL[locale]);
   const [kind, setKind] = useState<EntryKind>(initialKind);
   const [description, setDescription] = useState("");
   const [amountText, setAmountText] = useState("");
@@ -119,7 +123,7 @@ export function EntryDialog({
   function buildShares(): EntryInput["shares"] | string {
     if (kind === "transfer") return [];
     const ids = participants.filter((p) => included.has(p.id)).map((p) => p.id);
-    if (ids.length === 0) return "Minst en person måste vara med och dela.";
+    if (ids.length === 0) return dict.entryD.errShareEmpty;
     if (splitMode === "equal") {
       return ids.map((id) => ({ participant_id: id, weight: 1 }));
     }
@@ -128,7 +132,7 @@ export function EntryDialog({
       for (const id of ids) {
         const weight = parseFloat((parts[id] ?? "1").replace(",", "."));
         if (!Number.isFinite(weight) || weight <= 0) {
-          return "Alla andelar måste vara större än noll.";
+          return dict.entryD.errParts;
         }
         shares.push({ participant_id: id, weight });
       }
@@ -139,12 +143,12 @@ export function EntryDialog({
     for (const id of ids) {
       const cents = parseAmount(exact[id] ?? "");
       if (cents === null && (exact[id] ?? "").trim() !== "" && exact[id] !== "0") {
-        return "Ogiltigt belopp i fördelningen.";
+        return dict.entryD.errExactInvalid;
       }
       shares.push({ participant_id: id, amount_cents: cents ?? 0 });
     }
     if (amountCents !== null && exactSum !== amountCents) {
-      return `Fördelningen (${formatMoney(exactSum, currency)}) måste bli exakt ${formatMoney(amountCents, currency)}.`;
+      return t(dict.entryD.errExactSum, { sum: money(exactSum), total: money(amountCents) });
     }
     return shares;
   }
@@ -152,15 +156,15 @@ export function EntryDialog({
   function save() {
     setError(null);
     if (amountCents === null) {
-      setError("Ange ett giltigt belopp, t.ex. 249 eller 123,50.");
+      setError(dict.entryD.errAmount);
       return;
     }
     if (!paidBy) {
-      setError("Välj vem som betalade.");
+      setError(dict.entryD.errPayer);
       return;
     }
     if (kind === "transfer" && (!transferTo || transferTo === paidBy)) {
-      setError("Välj en mottagare (en annan person än avsändaren).");
+      setError(dict.entryD.errRecipient);
       return;
     }
     const shares = buildShares();
@@ -182,7 +186,7 @@ export function EntryDialog({
 
     startTransition(async () => {
       const result = await saveEntryAction(splitKey, input);
-      if (!result.ok) setError(result.error);
+      if (!result.ok) setError(te(result.error));
       else {
         track("entry_saved", { kind, isEdit: Boolean(entry) });
         onClose();
@@ -194,18 +198,18 @@ export function EntryDialog({
     if (!entry) return;
     startTransition(async () => {
       const result = await deleteEntryAction(splitKey, entry.id);
-      if (!result.ok) setError(result.error);
+      if (!result.ok) setError(te(result.error));
       else onClose();
     });
   }
 
   const title = entry
     ? entry.kind === "transfer"
-      ? "Redigera överföring"
-      : "Redigera utgift"
+      ? dict.entryD.editTransfer
+      : dict.entryD.editExpense
     : kind === "transfer"
-      ? "Ny överföring"
-      : "Ny utgift";
+      ? dict.entryD.newTransfer
+      : dict.entryD.newExpense;
 
   return (
     <Dialog open={open} onClose={onClose} title={title}>
@@ -214,8 +218,8 @@ export function EntryDialog({
           <div className="grid grid-cols-2 gap-1 rounded-xl bg-stone-100 p-1">
             {(
               [
-                ["expense", "Utgift"],
-                ["transfer", "Överföring"],
+                ["expense", dict.entryD.kindExpense],
+                ["transfer", dict.entryD.kindTransfer],
               ] as const
             ).map(([value, label]) => (
               <button
@@ -236,10 +240,10 @@ export function EntryDialog({
 
         {kind === "expense" && (
           <div>
-            <Label htmlFor="entry-desc">Vad gäller det?</Label>
+            <Label htmlFor="entry-desc">{dict.entryD.what}</Label>
             <Input
               id="entry-desc"
-              placeholder="t.ex. Middag på fjället"
+              placeholder={dict.entryD.whatPlaceholder}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               maxLength={120}
@@ -249,7 +253,7 @@ export function EntryDialog({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label htmlFor="entry-amount">Belopp ({currency})</Label>
+            <Label htmlFor="entry-amount">{t(dict.entryD.amount, { currency })}</Label>
             <Input
               id="entry-amount"
               inputMode="decimal"
@@ -259,7 +263,7 @@ export function EntryDialog({
             />
           </div>
           <div>
-            <Label htmlFor="entry-date">Datum</Label>
+            <Label htmlFor="entry-date">{dict.entryD.date}</Label>
             <Input
               id="entry-date"
               type="date"
@@ -272,7 +276,7 @@ export function EntryDialog({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label htmlFor="entry-payer">
-              {kind === "transfer" ? "Från" : "Vem betalade?"}
+              {kind === "transfer" ? dict.entryD.from : dict.entryD.payer}
             </Label>
             <Select
               id="entry-payer"
@@ -288,13 +292,13 @@ export function EntryDialog({
           </div>
           {kind === "transfer" && (
             <div>
-              <Label htmlFor="entry-recipient">Till</Label>
+              <Label htmlFor="entry-recipient">{dict.entryD.to}</Label>
               <Select
                 id="entry-recipient"
                 value={transferTo}
                 onChange={(e) => setTransferTo(e.target.value)}
               >
-                <option value="">Välj person…</option>
+                <option value="">{dict.entryD.choosePerson}</option>
                 {participants
                   .filter((p) => p.id !== paidBy)
                   .map((p) => (
@@ -310,13 +314,13 @@ export function EntryDialog({
         {kind === "expense" && (
           <div>
             <div className="mb-1.5 flex items-center justify-between">
-              <Label className="mb-0">Delas av</Label>
+              <Label className="mb-0">{dict.entryD.splitBy}</Label>
               <div className="flex gap-1 rounded-lg bg-stone-100 p-0.5">
                 {(
                   [
-                    ["equal", "Lika"],
-                    ["parts", "Andelar"],
-                    ["exact", "Belopp"],
+                    ["equal", dict.entryD.modeEqual],
+                    ["parts", dict.entryD.modeParts],
+                    ["exact", dict.entryD.modeExact],
                   ] as const
                 ).map(([value, label]) => (
                   <button
@@ -364,7 +368,7 @@ export function EntryDialog({
                           setParts((prev) => ({ ...prev, [p.id]: e.target.value }))
                         }
                         className="w-16 rounded-lg border border-stone-300 px-2 py-1.5 text-right text-sm outline-none focus:border-primary"
-                        aria-label={`Andelar för ${p.name}`}
+                        aria-label={`${dict.entryD.modeParts} — ${p.name}`}
                       />
                     )}
                     {checked && splitMode === "exact" && (
@@ -376,7 +380,7 @@ export function EntryDialog({
                           setExact((prev) => ({ ...prev, [p.id]: e.target.value }))
                         }
                         className="w-24 rounded-lg border border-stone-300 px-2 py-1.5 text-right text-sm outline-none focus:border-primary"
-                        aria-label={`Belopp för ${p.name}`}
+                        aria-label={`${dict.entryD.modeExact} — ${p.name}`}
                       />
                     )}
                   </div>
@@ -387,10 +391,15 @@ export function EntryDialog({
               <p
                 className={`mt-1.5 text-xs ${exactSum === amountCents ? "text-positive" : "text-stone-500"}`}
               >
-                Fördelat: {formatMoney(exactSum, currency)} av{" "}
-                {formatMoney(amountCents, currency)}
+                {t(dict.entryD.distributed, {
+                  sum: money(exactSum),
+                  total: money(amountCents),
+                })}
                 {exactSum !== amountCents &&
-                  ` — ${formatMoney(Math.abs(amountCents - exactSum), currency)} ${exactSum < amountCents ? "kvar" : "för mycket"}`}
+                  ` — ${t(
+                    exactSum < amountCents ? dict.entryD.remaining : dict.entryD.over,
+                    { amount: money(Math.abs(amountCents - exactSum)) }
+                  )}`}
               </p>
             )}
           </div>
@@ -402,7 +411,7 @@ export function EntryDialog({
           {entry &&
             (confirmDelete ? (
               <Button variant="danger" onClick={remove} disabled={pending}>
-                Ta bort?
+                {dict.entryD.deleteConfirm}
               </Button>
             ) : (
               <Button
@@ -411,15 +420,15 @@ export function EntryDialog({
                 onClick={() => setConfirmDelete(true)}
                 disabled={pending}
               >
-                Ta bort
+                {dict.entryD.delete}
               </Button>
             ))}
           <div className="flex-1" />
           <Button variant="secondary" onClick={onClose} disabled={pending}>
-            Avbryt
+            {dict.entryD.cancel}
           </Button>
           <Button onClick={save} disabled={pending}>
-            {pending ? "Sparar…" : "Spara"}
+            {pending ? dict.entryD.saving : dict.entryD.save}
           </Button>
         </div>
       </div>

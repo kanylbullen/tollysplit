@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Entry, EntryKind, SplitData } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/client";
 import { EntriesView } from "./EntriesView";
 import { BalancesView } from "./BalancesView";
 import { EntryDialog } from "./EntryDialog";
@@ -12,6 +13,7 @@ import { SettingsDialog } from "./SettingsDialog";
 type Tab = "entries" | "balances";
 
 export function SplitApp({ data }: { data: SplitData }) {
+  const { dict } = useI18n();
   const { split, participants, entries } = data;
   const storageKey = `tollesplit:me:${split.key}`;
 
@@ -77,7 +79,7 @@ export function SplitApp({ data }: { data: SplitData }) {
       }
     }
     await navigator.clipboard.writeText(url);
-    showToast("Länken är kopierad — dela den med gruppen!");
+    showToast(dict.split.shareCopied);
   }
 
   return (
@@ -86,7 +88,7 @@ export function SplitApp({ data }: { data: SplitData }) {
         <div className="flex items-center gap-2">
           <Link
             href="/"
-            aria-label="Till startsidan"
+            aria-label={dict.common.toStart}
             className="rounded-lg p-1.5 text-stone-400 hover:bg-stone-100 hover:text-ink"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -113,11 +115,11 @@ export function SplitApp({ data }: { data: SplitData }) {
             <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M13 5.5L7.5 9M7.5 11l5.5 3.5M16 4.5a2 2 0 11-4 0 2 2 0 014 0zM8 10a2 2 0 11-4 0 2 2 0 014 0zM16 15.5a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            Dela
+            {dict.split.share}
           </button>
           <button
             onClick={() => setSettingsOpen(true)}
-            aria-label="Inställningar"
+            aria-label={dict.common.settings}
             className="rounded-lg p-1.5 text-stone-400 hover:bg-stone-100 hover:text-ink"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -130,8 +132,8 @@ export function SplitApp({ data }: { data: SplitData }) {
         <nav className="mt-3 grid grid-cols-2 gap-1 rounded-xl bg-stone-200/60 p-1">
           {(
             [
-              ["balances", "Saldon"],
-              ["entries", "Transaktioner"],
+              ["balances", dict.split.tabBalances],
+              ["entries", dict.split.tabEntries],
             ] as const
           ).map(([value, label]) => (
             <button
@@ -183,7 +185,7 @@ export function SplitApp({ data }: { data: SplitData }) {
             }
             className="flex-1 rounded-xl bg-primary px-4 py-3 text-base font-bold text-white shadow-md transition-colors hover:bg-primary-dark"
           >
-            + Ny utgift
+            {dict.split.newExpense}
           </button>
           <button
             onClick={() =>
@@ -191,7 +193,7 @@ export function SplitApp({ data }: { data: SplitData }) {
             }
             className="rounded-xl border border-stone-300 bg-surface px-4 py-3 text-base font-semibold text-ink transition-colors hover:bg-stone-50"
           >
-            Överföring
+            {dict.split.transfer}
           </button>
         </div>
       </div>

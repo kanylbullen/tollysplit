@@ -12,8 +12,12 @@ export const CURRENCIES = [
   "THB",
 ] as const;
 
-export function formatMoney(cents: number, currency: string): string {
-  return new Intl.NumberFormat("sv-SE", {
+export function formatMoney(
+  cents: number,
+  currency: string,
+  locale = "sv-SE"
+): string {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     minimumFractionDigits: cents % 100 === 0 ? 0 : 2,

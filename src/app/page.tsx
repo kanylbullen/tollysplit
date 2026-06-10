@@ -3,8 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import type { SplitSummary } from "@/lib/types";
 import { BeerButton } from "@/components/BeerButton";
 import { MySplits } from "@/components/MySplits";
+import { LocaleSwitcher } from "@/components/LocaleSwitcher";
+import { getI18n } from "@/lib/i18n/server";
 
 export default async function Home() {
+  const { dict, t } = await getI18n();
   const supabase = await createClient();
   const {
     data: { user },
@@ -16,60 +19,62 @@ export default async function Home() {
     mine = (data as SplitSummary[] | null) ?? [];
   }
 
+  const steps = [
+    [dict.landing.step1Title, dict.landing.step1Body],
+    [dict.landing.step2Title, dict.landing.step2Body],
+    [dict.landing.step3Title, dict.landing.step3Body],
+  ];
+
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 sm:py-16">
-      <header className="mb-10 flex items-center justify-between">
+      <header className="mb-10 flex items-center justify-between gap-3">
         <span className="text-xl font-black tracking-tight text-primary">
           tollysplit
         </span>
-        {user ? (
-          <form action="/auth/signout" method="post" className="flex items-center gap-3">
-            <span className="hidden text-sm text-stone-400 sm:inline">
-              Inloggad som {user.email}
-            </span>
-            <button className="text-sm font-medium text-stone-500 hover:text-ink">
-              Logga ut
-            </button>
-          </form>
-        ) : (
-          <Link
-            href="/login"
-            className="text-sm font-medium text-stone-500 hover:text-ink"
-          >
-            Logga in
-          </Link>
-        )}
+        <div className="flex items-center gap-3">
+          <LocaleSwitcher />
+          {user ? (
+            <form action="/auth/signout" method="post" className="flex items-center gap-3">
+              <span className="hidden text-sm text-stone-400 sm:inline">
+                {t(dict.nav.signedInAs, { email: user.email ?? "" })}
+              </span>
+              <button className="text-sm font-medium text-stone-500 hover:text-ink">
+                {dict.nav.logout}
+              </button>
+            </form>
+          ) : (
+            <Link
+              href="/login"
+              className="text-sm font-medium text-stone-500 hover:text-ink"
+            >
+              {dict.nav.login}
+            </Link>
+          )}
+        </div>
       </header>
 
       <section className="mb-12 text-center">
         <h1 className="mb-3 text-4xl font-black tracking-tight sm:text-5xl">
-          Dela utgifter.
+          {dict.landing.hero1}
           <br />
-          <span className="text-primary">Slipp tjafset.</span>
+          <span className="text-primary">{dict.landing.hero2}</span>
         </h1>
         <p className="mx-auto mb-8 max-w-md text-lg text-stone-500">
-          Samla resans alla utlägg på ett ställe och se direkt vem som ska få
-          tillbaka vad. Inga konton — bara en länk.
+          {dict.landing.subtitle}
         </p>
         <Link
           href="/new"
           className="inline-block rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary-dark"
         >
-          Skapa en ny tollysplit
+          {dict.landing.create}
         </Link>
-        <p className="mt-3 text-sm text-stone-400">
-          Ingen inloggning behövs.
-        </p>
+        <p className="mt-3 text-sm text-stone-400">{dict.landing.noLogin}</p>
       </section>
 
       <MySplits server={mine} />
 
       <section className="grid gap-4 sm:grid-cols-3">
-        {[
-          ["1. Skapa", "Döp din tollysplit och lägg till vilka som är med."],
-          ["2. Dela länken", "Alla med länken kan lägga in utgifter — utan konto."],
-          ["3. Gör upp", "Saldon räknas ut automatiskt, med färdiga förslag på vem som swishar vem."],
-        ].map(([title, body]) => (
+        {steps.map(([title, body]) => (
           <div
             key={title}
             className="rounded-2xl border border-stone-200/80 bg-surface p-5 shadow-sm"
@@ -83,13 +88,13 @@ export default async function Home() {
       <footer className="mt-16 flex flex-col items-center gap-4 text-center text-xs text-stone-400">
         <BeerButton />
         <span>
-          tollysplit · byggd med kärlek, kaffe och öl ·{" "}
+          {dict.footer.tagline} ·{" "}
           <Link href="/integritet" className="hover:text-ink">
-            integritetspolicy
+            {dict.footer.privacy}
           </Link>{" "}
           ·{" "}
           <Link href="/cookies" className="hover:text-ink">
-            cookies
+            {dict.footer.cookies}
           </Link>
         </span>
       </footer>

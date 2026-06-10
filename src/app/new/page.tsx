@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { NewSplitForm } from "./NewSplitForm";
+import { getI18n } from "@/lib/i18n/server";
 
-export default function NewSplitPage() {
+export default async function NewSplitPage() {
+  const { dict } = await getI18n();
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 py-10">
       <Link
@@ -11,13 +13,9 @@ export default function NewSplitPage() {
         tollysplit
       </Link>
       <h1 className="mb-2 text-2xl font-black tracking-tight">
-        Ny tollysplit
+        {dict.new.title}
       </h1>
-      <p className="mb-6 text-stone-500">
-        Döp den efter resan eller tillfället och lägg till alla som ska dela på
-        kostnaderna. Ingen inloggning behövs — men spara länken när du är
-        klar, den är nyckeln till din tollysplit.
-      </p>
+      <p className="mb-6 text-stone-500">{dict.new.subtitle}</p>
       <NewSplitForm />
     </main>
   );

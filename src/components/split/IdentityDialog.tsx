@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { Participant } from "@/lib/types";
 import { Dialog } from "@/components/ui";
+import { useI18n } from "@/lib/i18n/client";
 import { avatarColor, initials } from "./helpers";
 
 export function IdentityDialog({
@@ -14,6 +15,7 @@ export function IdentityDialog({
   participants: Participant[];
   onPick: (id: string) => void;
 }) {
+  const { dict } = useI18n();
   // The native <dialog> close event fires even after an explicit pick;
   // only fall back to "viewer" when the dialog is dismissed without one.
   const picked = useRef(false);
@@ -32,12 +34,9 @@ export function IdentityDialog({
       onClose={() => {
         if (!picked.current) onPick("viewer");
       }}
-      title="Vem är du?"
+      title={dict.identity.title}
     >
-      <p className="mb-4 text-sm text-stone-500">
-        Välj dig själv så visar vi din andel av varje utgift och vad just du
-        ska betala eller få tillbaka.
-      </p>
+      <p className="mb-4 text-sm text-stone-500">{dict.identity.body}</p>
       <div className="space-y-2">
         {participants.map((p) => (
           <button
@@ -57,7 +56,7 @@ export function IdentityDialog({
           onClick={() => pick("viewer")}
           className="w-full rounded-xl px-4 py-3 text-sm text-stone-500 hover:bg-stone-50"
         >
-          Jag vill bara titta
+          {dict.identity.justLooking}
         </button>
       </div>
     </Dialog>

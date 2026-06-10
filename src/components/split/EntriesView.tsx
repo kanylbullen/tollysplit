@@ -2,6 +2,8 @@
 
 import type { Entry, Participant } from "@/lib/types";
 import { expenseSplit, formatMoney } from "@/lib/money";
+import { useI18n } from "@/lib/i18n/client";
+import { LOCALE_INTL } from "@/lib/i18n/config";
 import { avatarColor, formatDateHeading, initials } from "./helpers";
 
 export function EntriesView({
@@ -17,16 +19,17 @@ export function EntriesView({
   meId: string | null;
   onEdit: (entry: Entry) => void;
 }) {
+  const { dict, t, locale } = useI18n();
+  const intl = LOCALE_INTL[locale];
   const byId = new Map(participants.map((p) => [p.id, p]));
 
   if (entries.length === 0) {
     return (
       <div className="py-16 text-center">
         <div className="mb-3 text-4xl">🧾</div>
-        <p className="font-semibold">Inga utgifter ännu</p>
+        <p className="font-semibold">{dict.entries.emptyTitle}</p>
         <p className="mx-auto mt-1 max-w-xs text-sm text-stone-500">
-          Lägg in den första utgiften med knappen här nedanför, så sköter vi
-          räknandet.
+          {dict.entries.emptyBody}
         </p>
       </div>
     );
@@ -44,7 +47,7 @@ export function EntriesView({
       {groups.map((group) => (
         <section key={group.date}>
           <h3 className="mb-2 px-1 text-sm font-bold uppercase tracking-wide text-stone-400">
-            {formatDateHeading(group.date)}
+            {formatDateHeading(group.date, intl, dict.date.today, dict.date.yesterday)}
           </h3>
           <div className="overflow-hidden rounded-2xl border border-stone-200/80 bg-surface shadow-sm">
             {group.items.map((entry, i) => {
@@ -75,23 +78,25 @@ export function EntriesView({
                     <span className="block truncate font-semibold">
                       {isTransfer
                         ? `${payer?.name ?? "?"} → ${recipient?.name ?? "?"}`
-                        : entry.description || "Utgift"}
+                        : entry.description || dict.entries.expense}
                     </span>
                     <span className="block truncate text-sm text-stone-400">
                       {isTransfer
-                        ? entry.description || "Överföring"
-                        : `${payer?.name ?? "?"} betalade`}
+                        ? entry.description || dict.entries.transfer
+                        : t(dict.entries.paidBy, { name: payer?.name ?? "?" })}
                     </span>
                   </span>
                   <span className="text-right">
                     <span
                       className={`block font-bold ${isTransfer ? "text-stone-400" : ""}`}
                     >
-                      {formatMoney(entry.amount_cents, currency)}
+                      {formatMoney(entry.amount_cents, currency, intl)}
                     </span>
                     {myShare > 0 && (
                       <span className="block text-xs text-stone-400">
-                        din del {formatMoney(myShare, currency)}
+                        {t(dict.entries.myShare, {
+                          amount: formatMoney(myShare, currency, intl),
+                        })}
                       </span>
                     )}
                   </span>

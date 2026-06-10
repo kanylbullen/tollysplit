@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getI18n } from "@/lib/i18n/server";
 import { LoginForm } from "./LoginForm";
 
 export default async function LoginPage({
@@ -8,6 +9,7 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
+  const { dict } = await getI18n();
   const supabase = await createClient();
   const {
     data: { user },
@@ -24,15 +26,13 @@ export default async function LoginPage({
       >
         tollysplit
       </Link>
-      <h1 className="mb-2 text-2xl font-black tracking-tight">Logga in</h1>
-      <p className="mb-6 text-stone-500">
-        Inloggning är valfri — den gör att tollysplits du skapar följer med
-        mellan dina enheter. Ange din e-postadress så skickar vi en
-        engångskod och en inloggningslänk.
-      </p>
+      <h1 className="mb-2 text-2xl font-black tracking-tight">
+        {dict.login.title}
+      </h1>
+      <p className="mb-6 text-stone-500">{dict.login.subtitle}</p>
       {error === "invalid_link" && (
         <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-          Länken är ogiltig eller har gått ut. Prova att logga in igen.
+          {dict.login.invalidLink}
         </p>
       )}
       <LoginForm />

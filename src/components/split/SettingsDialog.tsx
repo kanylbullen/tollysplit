@@ -21,6 +21,8 @@ import {
   normalizePayment,
 } from "@/lib/payment";
 import { Button, Dialog, Input, Label, Select } from "@/components/ui";
+import { useI18n } from "@/lib/i18n/client";
+import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 
 export function SettingsDialog({
   open,
@@ -48,6 +50,7 @@ export function SettingsDialog({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const { theme, setTheme } = useTheme();
+  const { dict, t, te } = useI18n();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -65,18 +68,18 @@ export function SettingsDialog({
     setError(null);
     startTransition(async () => {
       const result = await action();
-      if (!result.ok) setError(result.error ?? "Något gick fel.");
+      if (!result.ok) setError(te(result.error ?? "unknown"));
     });
   }
 
   const dirty = title.trim() !== split.title || currency !== split.currency;
 
   return (
-    <Dialog open={open} onClose={onClose} title="Inställningar">
+    <Dialog open={open} onClose={onClose} title={dict.set.title}>
       <div className="space-y-6">
         <section className="space-y-3">
           <div>
-            <Label htmlFor="split-title">Namn</Label>
+            <Label htmlFor="split-title">{dict.set.name}</Label>
             <Input
               id="split-title"
               value={title}
@@ -85,7 +88,7 @@ export function SettingsDialog({
             />
           </div>
           <div>
-            <Label htmlFor="split-currency">Valuta</Label>
+            <Label htmlFor="split-currency">{dict.set.currency}</Label>
             <Select
               id="split-currency"
               value={currency}
@@ -105,13 +108,13 @@ export function SettingsDialog({
               }
               disabled={pending || title.trim().length === 0}
             >
-              Spara ändringar
+              {dict.set.saveChanges}
             </Button>
           )}
         </section>
 
         <section>
-          <Label>Deltagare</Label>
+          <Label>{dict.set.participants}</Label>
           <div className="overflow-hidden rounded-xl border border-stone-200">
             {participants.map((p, i) => (
               <div
@@ -137,13 +140,13 @@ export function SettingsDialog({
                       disabled={pending || renameText.trim().length === 0}
                       className="text-sm font-semibold text-primary hover:text-primary-dark"
                     >
-                      Spara
+                      {dict.common.save}
                     </button>
                     <button
                       onClick={() => setRenaming(null)}
                       className="text-sm text-stone-400 hover:text-ink"
                     >
-                      Avbryt
+                      {dict.common.cancel}
                     </button>
                   </>
                 ) : (
@@ -152,7 +155,7 @@ export function SettingsDialog({
                       {p.name}
                       {meId === p.id && (
                         <span className="ml-1.5 rounded-md bg-primary-soft px-1.5 py-0.5 text-xs font-bold text-primary-dark">
-                          du
+                          {dict.common.you}
                         </span>
                       )}
                     </span>
@@ -163,7 +166,7 @@ export function SettingsDialog({
                       }}
                       className="text-sm text-stone-400 hover:text-ink"
                     >
-                      Byt namn
+                      {dict.set.rename}
                     </button>
                     <button
                       onClick={() =>
@@ -172,7 +175,7 @@ export function SettingsDialog({
                       disabled={pending}
                       className="text-sm text-stone-400 hover:text-negative"
                     >
-                      Ta bort
+                      {dict.common.delete}
                     </button>
                   </>
                 )}
@@ -189,7 +192,7 @@ export function SettingsDialog({
                     }
                     const normalized = normalizePayment(payType, payText);
                     if (!normalized) {
-                      setError("Ogiltig uppgift — kontrollera numret eller IBAN.");
+                      setError(te("bad_payment_value"));
                       return;
                     }
                     run(() => setPaymentMethodAction(split.key, p.id, payType, normalized));
@@ -209,7 +212,7 @@ export function SettingsDialog({
                   </select>
                   <input
                     inputMode={PAYMENT_META[payType].kind === "iban" ? "text" : "tel"}
-                    placeholder={`${PAYMENT_META[payType].placeholder} (tomt = ta bort)`}
+                    placeholder={`${PAYMENT_META[payType].placeholder}${dict.set.removeSuffix}`}
                     value={payText}
                     onChange={(e) => setPayText(e.target.value)}
                     autoFocus
@@ -220,14 +223,14 @@ export function SettingsDialog({
                     disabled={pending}
                     className="text-sm font-semibold text-primary hover:text-primary-dark"
                   >
-                    Spara
+                    {dict.common.save}
                   </button>
                   <button
                     type="button"
                     onClick={() => setPayEditing(null)}
                     className="text-sm text-stone-400 hover:text-ink"
                   >
-                    Avbryt
+                    {dict.common.cancel}
                   </button>
                 </form>
               ) : (
@@ -240,8 +243,11 @@ export function SettingsDialog({
                   className="mt-0.5 text-xs text-stone-400 hover:text-primary-dark"
                 >
                   {p.payment_type && p.payment_value
-                    ? `${PAYMENT_META[p.payment_type].label}: ${formatPayment(p.payment_type, p.payment_value)} · ändra`
-                    : "+ Lägg till betalsätt"}
+                    ? t(dict.set.payShow, {
+                        method: PAYMENT_META[p.payment_type].label,
+                        value: formatPayment(p.payment_type, p.payment_value),
+                      })
+                    : dict.set.payAdd}
                 </button>
               )}
               </div>
@@ -258,7 +264,7 @@ export function SettingsDialog({
             }}
           >
             <Input
-              placeholder="Ny deltagare"
+              placeholder={dict.set.newParticipant}
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               maxLength={40}
@@ -268,22 +274,22 @@ export function SettingsDialog({
               variant="secondary"
               disabled={pending || newName.trim().length === 0}
             >
-              Lägg till
+              {dict.set.add}
             </Button>
           </form>
           <p className="mt-1.5 text-xs text-stone-400">
-            Deltagare med bokförda poster kan inte tas bort.
+            {dict.set.cantDeleteHint}
           </p>
         </section>
 
         <section>
-          <Label>Utseende</Label>
+          <Label>{dict.set.appearance}</Label>
           <div className="grid grid-cols-3 gap-1 rounded-xl bg-stone-100 p-1">
             {(
               [
-                ["light", "Ljust"],
-                ["dark", "Mörkt"],
-                ["system", "System"],
+                ["light", dict.set.light],
+                ["dark", dict.set.dark],
+                ["system", dict.set.system],
               ] as const
             ).map(([value, label]) => (
               <button
@@ -300,13 +306,16 @@ export function SettingsDialog({
               </button>
             ))}
           </div>
-          <p className="mt-1.5 text-xs text-stone-400">
-            System följer enhetens ljusa/mörka läge.
-          </p>
+          <p className="mt-1.5 text-xs text-stone-400">{dict.set.systemHint}</p>
         </section>
 
         <section>
-          <Label>Integritet</Label>
+          <Label>{dict.switcher.label}</Label>
+          <LocaleSwitcher />
+        </section>
+
+        <section>
+          <Label>{dict.set.privacy}</Label>
           {split.has_owner ? (
             <label className="flex cursor-pointer items-start gap-2.5 text-sm">
               <input
@@ -318,25 +327,18 @@ export function SettingsDialog({
                 }
                 className="mt-0.5 h-4 w-4 accent-teal-600"
               />
-              <span>
-                Radera den här tollyspliten automatiskt efter 6 månader utan
-                aktivitet
-              </span>
+              <span>{dict.set.purgeToggle}</span>
             </label>
           ) : (
-            <p className="text-sm text-stone-500">
-              Den här tollyspliten raderas automatiskt efter 6 månader utan
-              aktivitet. Skapa splits inloggad om du vill kunna stänga av
-              gallringen.
-            </p>
+            <p className="text-sm text-stone-500">{dict.set.purgeAnon}</p>
           )}
           <p className="mt-1.5 text-xs text-stone-400">
-            Betaluppgifter raderas automatiskt när alla är kvitt. Läs mer i{" "}
+            {dict.set.purgeHint1}{" "}
             <Link
               href="/integritet"
               className="text-primary hover:text-primary-dark"
             >
-              integritetspolicyn
+              {dict.set.privacyLink}
             </Link>
             .
           </p>
@@ -350,7 +352,7 @@ export function SettingsDialog({
             }}
             className="text-sm font-medium text-primary hover:text-primary-dark"
           >
-            Byt vem du är på den här enheten
+            {dict.set.changeIdentity}
           </button>
         </section>
 

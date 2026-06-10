@@ -19,8 +19,9 @@ export async function createSplitAction(
     .map((n) => String(n).trim())
     .filter((n) => n.length > 0);
 
-  if (!title) return { error: "Ge din tollysplit ett namn." };
-  if (names.length < 2) return { error: "Lägg till minst två deltagare." };
+  // Errors are returned as codes; the client translates them via dict.errors.
+  if (!title) return { error: "title_required" };
+  if (names.length < 2) return { error: "need_two_participants" };
 
   // Hashed client IP feeds the per-IP creation throttle in the database.
   // Use Vercel's trusted headers — a client can spoof x-forwarded-for, but
@@ -44,13 +45,8 @@ export async function createSplitAction(
   });
 
   if (error || !key) {
-    if (error?.message.includes("rate_limited")) {
-      return {
-        error:
-          "Det skapas ovanligt många tollysplits just nu — vänta en stund och prova igen.",
-      };
-    }
-    return { error: `Något gick fel: ${error?.message ?? "okänt fel"}` };
+    if (error?.message.includes("rate_limited")) return { error: "rate_limited" };
+    return { error: "unknown" };
   }
 
   await track("split_created", { participants: names.length, currency });

@@ -17,6 +17,8 @@ import {
   type PaymentType,
   normalizePayment,
 } from "@/lib/payment";
+import { useI18n } from "@/lib/i18n/client";
+import { LOCALE_INTL } from "@/lib/i18n/config";
 import { avatarColor, initials, todayIso } from "./helpers";
 import { PaymentDialog, type Payment } from "./PaymentDialog";
 
@@ -44,6 +46,9 @@ export function BalancesView({
   meId: string | null;
   onEditEntry: (entry: Entry) => void;
 }) {
+  const { dict, t, te, locale } = useI18n();
+  const intl = LOCALE_INTL[locale];
+  const money = (cents: number) => formatMoney(cents, currency, intl);
   const byId = new Map(participants.map((p) => [p.id, p]));
   const bal = balances(participants, entries);
   const plan = settlements(bal);
@@ -71,16 +76,14 @@ export function BalancesView({
     const normalized = normalizePayment(payType, payInput);
     if (!normalized) {
       setPayError(
-        PAYMENT_META[payType].kind === "iban"
-          ? "Ange ett giltigt IBAN."
-          : "Ange ett giltigt telefonnummer."
+        PAYMENT_META[payType].kind === "iban" ? dict.bal.errIban : dict.bal.errPhone
       );
       return;
     }
     setPayError(null);
     startTransition(async () => {
       const result = await setPaymentMethodAction(splitKey, me.id, payType, normalized);
-      if (!result.ok) setPayError(result.error);
+      if (!result.ok) setPayError(te(result.error));
     });
   }
 
@@ -98,7 +101,7 @@ export function BalancesView({
         entry_date: todayIso(),
         shares: [],
       });
-      if (!result.ok) setError(result.error);
+      if (!result.ok) setError(te(result.error));
       else track("settlement_paid");
       setSettling(null);
     });
@@ -108,13 +111,12 @@ export function BalancesView({
     <div className="space-y-6">
       <section>
         <h3 className="mb-2 px-1 text-sm font-bold uppercase tracking-wide text-stone-400">
-          Så blir ni kvitt
+          {dict.bal.settleHeading}
         </h3>
         {showPaymentPrompt && (
           <div className="mb-3 rounded-2xl border border-primary/30 bg-primary-soft/40 p-4">
             <p className="mb-2 text-sm font-semibold">
-              Du har pengar att få, {me.name}! Lägg in ditt betalsätt så kan de
-              andra betala dig direkt härifrån.
+              {t(dict.bal.paymentPrompt, { name: me.name })}
             </p>
             <div className="flex gap-2">
               <select
@@ -140,7 +142,7 @@ export function BalancesView({
                 disabled={pending}
                 className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50"
               >
-                Spara
+                {dict.common.save}
               </button>
             </div>
             {payError && <p className="mt-1.5 text-xs text-negative">{payError}</p>}
@@ -148,14 +150,14 @@ export function BalancesView({
         )}
         {plan.length === 0 && paidTransfers.length === 0 ? (
           <div className="rounded-2xl border border-stone-200/80 bg-surface p-5 text-center shadow-sm">
-            <p className="font-semibold">Allt är uppgjort 🎉</p>
-            <p className="text-sm text-stone-500">Ingen är skyldig någon något.</p>
+            <p className="font-semibold">{dict.bal.allSquare}</p>
+            <p className="text-sm text-stone-500">{dict.bal.nobodyOwes}</p>
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border border-stone-200/80 bg-surface shadow-sm">
             {plan.length === 0 && (
               <div className="px-4 py-3.5 text-center">
-                <p className="font-semibold">Allt är uppgjort 🎉</p>
+                <p className="font-semibold">{dict.bal.allSquare}</p>
               </div>
             )}
             {plan.map((s, i) => {
@@ -170,10 +172,10 @@ export function BalancesView({
                 >
                   <span className="min-w-0 flex-1">
                     <span className="font-semibold">{from?.name}</span>
-                    <span className="text-stone-400"> betalar </span>
+                    <span className="text-stone-400"> {dict.bal.pays} </span>
                     <span className="font-semibold">{to?.name}</span>
                     <span className="block font-bold text-primary-dark">
-                      {formatMoney(s.amount_cents, currency)}
+                      {money(s.amount_cents)}
                     </span>
                   </span>
                   <span className="flex shrink-0 flex-col items-stretch gap-1.5 sm:flex-row">
@@ -194,7 +196,7 @@ export function BalancesView({
                         }}
                         className="rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
                       >
-                        {to!.payment_type === "swish" ? "Swisha" : "Betala"}
+                        {to!.payment_type === "swish" ? dict.bal.swisha : dict.bal.pay}
                       </button>
                     )}
                     <button
@@ -202,7 +204,7 @@ export function BalancesView({
                       disabled={pending}
                       className="rounded-xl border border-stone-300 px-3 py-2 text-sm font-semibold text-stone-600 transition-colors hover:border-primary hover:text-primary-dark disabled:opacity-50"
                     >
-                      {settling === id ? "Bokför…" : "Markera betald"}
+                      {settling === id ? dict.bal.booking : dict.bal.markPaid}
                     </button>
                   </span>
                 </div>
@@ -219,14 +221,14 @@ export function BalancesView({
                 >
                   <span className="min-w-0 flex-1 line-through decoration-stone-400">
                     <span className="font-semibold">{from?.name}</span>
-                    <span className="text-stone-400"> betalar </span>
+                    <span className="text-stone-400"> {dict.bal.pays} </span>
                     <span className="font-semibold">{to?.name}</span>
                     <span className="block font-bold text-stone-500">
-                      {formatMoney(t.amount_cents, currency)}
+                      {money(t.amount_cents)}
                     </span>
                   </span>
                   <span className="text-sm font-semibold text-positive">
-                    Betald ✓
+                    {dict.bal.paid}
                   </span>
                 </button>
               );
@@ -234,14 +236,12 @@ export function BalancesView({
           </div>
         )}
         {error && <p className="mt-2 text-sm text-negative">{error}</p>}
-        <p className="mt-2 px-1 text-xs text-stone-400">
-          ”Markera betald” bokför en överföring så att saldona nollas.
-        </p>
+        <p className="mt-2 px-1 text-xs text-stone-400">{dict.bal.markPaidHint}</p>
       </section>
 
       <section>
         <h3 className="mb-2 px-1 text-sm font-bold uppercase tracking-wide text-stone-400">
-          Saldo per person
+          {dict.bal.perPerson}
         </h3>
         <div className="overflow-hidden rounded-2xl border border-stone-200/80 bg-surface shadow-sm">
           {participants.map((p, i) => {
@@ -262,7 +262,7 @@ export function BalancesView({
                     {p.name}
                     {meId === p.id && (
                       <span className="ml-1.5 rounded-md bg-primary-soft px-1.5 py-0.5 text-xs font-bold text-primary-dark">
-                        du
+                        {dict.common.you}
                       </span>
                     )}
                   </span>
@@ -278,10 +278,10 @@ export function BalancesView({
                     className={`block font-bold ${value > 0 ? "text-positive" : value < 0 ? "text-negative" : "text-stone-400"}`}
                   >
                     {value > 0 ? "+" : ""}
-                    {formatMoney(value, currency)}
+                    {money(value)}
                   </span>
                   <span className="block text-xs text-stone-400">
-                    andel {formatMoney(shares.get(p.id) ?? 0, currency)}
+                    {t(dict.bal.share, { amount: money(shares.get(p.id) ?? 0) })}
                   </span>
                 </span>
               </div>
@@ -291,10 +291,8 @@ export function BalancesView({
       </section>
 
       <div className="rounded-2xl border border-stone-200/80 bg-surface p-5 text-center shadow-sm">
-        <p className="text-sm font-medium text-stone-400">Totalt spenderat</p>
-        <p className="text-3xl font-black tracking-tight">
-          {formatMoney(total, currency)}
-        </p>
+        <p className="text-sm font-medium text-stone-400">{dict.bal.totalSpent}</p>
+        <p className="text-3xl font-black tracking-tight">{money(total)}</p>
       </div>
 
       <PaymentDialog

@@ -3,10 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { SplitSummary } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/client";
+import { LOCALE_INTL } from "@/lib/i18n/config";
 
 type VisitedSplit = { key: string; title: string; at: number };
 
 export function MySplits({ server }: { server: SplitSummary[] }) {
+  const { dict, t, locale } = useI18n();
+  const intl = LOCALE_INTL[locale];
   const [visited, setVisited] = useState<VisitedSplit[]>([]);
 
   useEffect(() => {
@@ -28,7 +32,7 @@ export function MySplits({ server }: { server: SplitSummary[] }) {
   return (
     <section className="mb-12">
       <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-stone-400">
-        Dina tollysplits
+        {dict.mySplits.title}
       </h2>
       <ul className="space-y-2">
         {server.map((k) => (
@@ -40,9 +44,18 @@ export function MySplits({ server }: { server: SplitSummary[] }) {
               <div>
                 <div className="font-semibold">{k.title}</div>
                 <div className="text-sm text-stone-400">
-                  {k.participant_count} deltagare · {k.entry_count}{" "}
-                  {k.entry_count === 1 ? "post" : "poster"} · skapad{" "}
-                  {new Date(k.created_at).toLocaleDateString("sv-SE")}
+                  {t(dict.mySplits.participants, { count: k.participant_count })}{" "}
+                  ·{" "}
+                  {t(
+                    k.entry_count === 1
+                      ? dict.mySplits.entriesOne
+                      : dict.mySplits.entriesMany,
+                    { count: k.entry_count }
+                  )}{" "}
+                  ·{" "}
+                  {t(dict.mySplits.created, {
+                    date: new Date(k.created_at).toLocaleDateString(intl),
+                  })}
                 </div>
               </div>
               <span className="text-stone-300">→</span>
@@ -58,7 +71,9 @@ export function MySplits({ server }: { server: SplitSummary[] }) {
               <div>
                 <div className="font-semibold">{v.title}</div>
                 <div className="text-sm text-stone-400">
-                  senast öppnad {new Date(v.at).toLocaleDateString("sv-SE")}
+                  {t(dict.mySplits.lastOpened, {
+                    date: new Date(v.at).toLocaleDateString(intl),
+                  })}
                 </div>
               </div>
               <span className="text-stone-300">→</span>
@@ -67,11 +82,11 @@ export function MySplits({ server }: { server: SplitSummary[] }) {
         ))}
       </ul>
       <p className="mt-2 px-1 text-xs text-stone-400">
-        Listan sparas i din webbläsare.{" "}
+        {dict.mySplits.savedHint1}{" "}
         <Link href="/login" className="text-primary hover:text-primary-dark">
-          Logga in
+          {dict.mySplits.loginCta}
         </Link>{" "}
-        om du vill att den följer med mellan enheter.
+        {dict.mySplits.savedHint2}
       </p>
     </section>
   );
