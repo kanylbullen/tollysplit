@@ -25,6 +25,10 @@ export type Entry = {
   transfer_to: string | null;
   entry_date: string;
   created_at: string;
+  /** Foreign-currency origin (null = entered in the split's main currency). */
+  orig_currency: string | null;
+  orig_amount_cents: number | null;
+  fx_rate: number | null;
   shares: Share[];
 };
 

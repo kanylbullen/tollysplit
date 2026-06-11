@@ -45,6 +45,9 @@ export type EntryInput = {
   paid_by: string;
   transfer_to?: string;
   entry_date: string;
+  orig_currency?: string;
+  orig_amount_cents?: number;
+  fx_rate?: number;
   shares: { participant_id: string; weight?: number; amount_cents?: number }[];
 };
 

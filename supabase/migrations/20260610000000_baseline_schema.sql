@@ -50,6 +50,11 @@ create table if not exists public.entries (
   entry_date date not null default current_date,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  -- Opt-in multi-currency: amount_cents is always in the split's main currency;
+  -- these record the original foreign-currency entry and the locked FX rate.
+  orig_currency text,
+  orig_amount_cents bigint check (orig_amount_cents is null or orig_amount_cents > 0),
+  fx_rate numeric check (fx_rate is null or fx_rate > 0),
   constraint transfer_has_recipient check (
     (kind = 'transfer' and transfer_to is not null) or
     (kind = 'expense' and transfer_to is null)
@@ -209,6 +214,7 @@ begin
         'amount_cents', e.amount_cents, 'paid_by', e.paid_by,
         'transfer_to', e.transfer_to, 'entry_date', e.entry_date,
         'created_at', e.created_at,
+        'orig_currency', e.orig_currency, 'orig_amount_cents', e.orig_amount_cents, 'fx_rate', e.fx_rate,
         'shares', (select coalesce(jsonb_agg(jsonb_build_object(
             'participant_id', s.participant_id, 'weight', s.weight, 'amount_cents', s.amount_cents
           )), '[]'::jsonb) from entry_shares s where s.entry_id = e.id)
@@ -342,6 +348,9 @@ declare
   v_transfer_to uuid := nullif(p_entry->>'transfer_to', '')::uuid;
   v_date date := coalesce(nullif(p_entry->>'entry_date', '')::date, current_date);
   v_desc text := nullif(trim(coalesce(p_entry->>'description', '')), '');
+  v_orig_currency text := nullif(trim(coalesce(p_entry->>'orig_currency', '')), '');
+  v_orig_amount bigint := nullif(p_entry->>'orig_amount_cents', '')::bigint;
+  v_fx_rate numeric := nullif(p_entry->>'fx_rate', '')::numeric;
   v_share jsonb;
   v_share_count int := 0;
 begin
@@ -350,7 +359,11 @@ begin
   if not exists (select 1 from participants where id = v_paid_by and split_id = v_split) then
     raise exception 'bad_payer';
   end if;
+  if v_orig_currency is not null and (v_orig_amount is null or v_fx_rate is null) then
+    raise exception 'bad_currency';
+  end if;
   if v_kind = 'transfer' then
+    v_orig_currency := null; v_orig_amount := null; v_fx_rate := null;
     if v_transfer_to is null or v_transfer_to = v_paid_by
        or not exists (select 1 from participants where id = v_transfer_to and split_id = v_split) then
       raise exception 'bad_recipient';
@@ -363,13 +376,17 @@ begin
 
   if v_id is not null then
     update entries set kind = v_kind, description = v_desc, amount_cents = v_amount,
-      paid_by = v_paid_by, transfer_to = v_transfer_to, entry_date = v_date, updated_at = now()
+      paid_by = v_paid_by, transfer_to = v_transfer_to, entry_date = v_date,
+      orig_currency = v_orig_currency, orig_amount_cents = v_orig_amount, fx_rate = v_fx_rate,
+      updated_at = now()
     where id = v_id and split_id = v_split;
     if not found then raise exception 'entry_not_found' using errcode = 'P0002'; end if;
     delete from entry_shares where entry_id = v_id;
   else
-    insert into entries (split_id, kind, description, amount_cents, paid_by, transfer_to, entry_date)
-    values (v_split, v_kind, v_desc, v_amount, v_paid_by, v_transfer_to, v_date)
+    insert into entries (split_id, kind, description, amount_cents, paid_by, transfer_to, entry_date,
+      orig_currency, orig_amount_cents, fx_rate)
+    values (v_split, v_kind, v_desc, v_amount, v_paid_by, v_transfer_to, v_date,
+      v_orig_currency, v_orig_amount, v_fx_rate)
     returning id into v_id;
   end if;
 

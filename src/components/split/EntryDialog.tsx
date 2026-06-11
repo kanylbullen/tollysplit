@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { track } from "@vercel/analytics";
 import type { Entry, EntryKind, Participant } from "@/lib/types";
-import { formatMoney, parseAmount } from "@/lib/money";
+import { CURRENCIES, formatMoney, parseAmount } from "@/lib/money";
 import {
   deleteEntryAction,
   saveEntryAction,
@@ -46,6 +46,9 @@ export function EntryDialog({
   const [kind, setKind] = useState<EntryKind>(initialKind);
   const [description, setDescription] = useState("");
   const [amountText, setAmountText] = useState("");
+  const [entryCurrency, setEntryCurrency] = useState(currency);
+  const [rate, setRate] = useState<number | null>(null);
+  const [rateLoading, setRateLoading] = useState(false);
   const [date, setDate] = useState(todayIso());
   const [paidBy, setPaidBy] = useState("");
   const [transferTo, setTransferTo] = useState("");
@@ -57,6 +60,33 @@ export function EntryDialog({
   const [pending, startTransition] = useTransition();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const isForeign = entryCurrency !== currency;
+
+  // Fetch the exchange rate when a foreign currency is chosen. The rate is
+  // locked the moment it's saved (Kittysplit-style); refetching here just
+  // keeps the live preview fresh while the dialog is open.
+  useEffect(() => {
+    if (!open || !isForeign) {
+      setRate(isForeign ? rate : 1);
+      return;
+    }
+    let cancelled = false;
+    setRateLoading(true);
+    fetch(`/api/fx?from=${entryCurrency}&to=${currency}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled && typeof d.rate === "number") setRate(d.rate);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setRateLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, entryCurrency, currency]);
+
   // Re-seed form state each time the dialog opens.
   useEffect(() => {
     if (!open) return;
@@ -65,7 +95,15 @@ export function EntryDialog({
     if (entry) {
       setKind(entry.kind);
       setDescription(entry.description ?? "");
-      setAmountText(centsToText(entry.amount_cents));
+      if (entry.orig_currency && entry.orig_amount_cents && entry.fx_rate) {
+        setEntryCurrency(entry.orig_currency);
+        setAmountText(centsToText(entry.orig_amount_cents));
+        setRate(entry.fx_rate);
+      } else {
+        setEntryCurrency(currency);
+        setAmountText(centsToText(entry.amount_cents));
+        setRate(1);
+      }
       setDate(entry.entry_date);
       setPaidBy(entry.paid_by);
       setTransferTo(entry.transfer_to ?? "");
@@ -90,6 +128,8 @@ export function EntryDialog({
       setKind(initialKind);
       setDescription("");
       setAmountText("");
+      setEntryCurrency(currency);
+      setRate(1);
       setDate(todayIso());
       setPaidBy(meId && participants.some((p) => p.id === meId) ? meId : (participants[0]?.id ?? ""));
       setTransferTo("");
@@ -100,7 +140,17 @@ export function EntryDialog({
     }
   }, [open, entry, initialKind, meId, participants]);
 
-  const amountCents = parseAmount(amountText);
+  // Amount typed in entryCurrency; converted to the split's main currency so
+  // all share/balance math stays in one currency.
+  const origCents = parseAmount(amountText);
+  const amountCents =
+    origCents === null
+      ? null
+      : isForeign
+        ? rate
+          ? Math.round(origCents * rate)
+          : null
+        : origCents;
 
   const exactSum = useMemo(() => {
     let sum = 0;
@@ -181,6 +231,14 @@ export function EntryDialog({
       paid_by: paidBy,
       transfer_to: kind === "transfer" ? transferTo : undefined,
       entry_date: date,
+      // Lock the foreign currency, original amount and rate at save time.
+      ...(kind === "expense" && isForeign && rate && origCents !== null
+        ? {
+            orig_currency: entryCurrency,
+            orig_amount_cents: origCents,
+            fx_rate: rate,
+          }
+        : {}),
       shares,
     };
 
@@ -253,14 +311,28 @@ export function EntryDialog({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label htmlFor="entry-amount">{t(dict.entryD.amount, { currency })}</Label>
-            <Input
-              id="entry-amount"
-              inputMode="decimal"
-              placeholder="0"
-              value={amountText}
-              onChange={(e) => setAmountText(e.target.value)}
-            />
+            <Label htmlFor="entry-amount">{dict.entryD.amountLabel}</Label>
+            <div className="flex gap-2">
+              <Input
+                id="entry-amount"
+                inputMode="decimal"
+                placeholder="0"
+                value={amountText}
+                onChange={(e) => setAmountText(e.target.value)}
+              />
+              <Select
+                aria-label={dict.entryD.amountLabel}
+                value={entryCurrency}
+                onChange={(e) => setEntryCurrency(e.target.value)}
+                className="w-24 shrink-0"
+              >
+                {CURRENCIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
           <div>
             <Label htmlFor="entry-date">{dict.entryD.date}</Label>
@@ -272,6 +344,15 @@ export function EntryDialog({
             />
           </div>
         </div>
+        {isForeign && (
+          <p className="-mt-2 text-xs text-stone-500">
+            {rateLoading
+              ? "…"
+              : amountCents !== null
+                ? t(dict.entryD.fxLocked, { amount: money(amountCents) })
+                : dict.entryD.fxUnavailable}
+          </p>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <div>

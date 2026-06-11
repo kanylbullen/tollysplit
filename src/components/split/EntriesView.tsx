@@ -92,6 +92,15 @@ export function EntriesView({
                     >
                       {formatMoney(entry.amount_cents, currency, intl)}
                     </span>
+                    {entry.orig_currency && entry.orig_amount_cents != null && (
+                      <span className="block text-xs text-stone-400">
+                        {formatMoney(
+                          entry.orig_amount_cents,
+                          entry.orig_currency,
+                          intl
+                        )}
+                      </span>
+                    )}
                     {myShare > 0 && (
                       <span className="block text-xs text-stone-400">
                         {t(dict.entries.myShare, {
