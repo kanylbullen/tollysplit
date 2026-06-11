@@ -6,6 +6,7 @@ export const CURRENCIES = [
   "USD",
   "NOK",
   "DKK",
+  "ISK",
   "GBP",
   "CHF",
   "PLN",
