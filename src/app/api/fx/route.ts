@@ -17,17 +17,48 @@ async function usdRates(): Promise<Record<string, number> | null> {
   return data.result === "success" && data.rates ? data.rates : null;
 }
 
-// BTC price: CoinGecko (free, no key). Shorter cache — bitcoin moves faster
-// than fiat; the locked-rate model still applies on save.
+// BTC price with provider fallback. CoinGecko's anonymous tier 429s easily
+// from shared serverless egress IPs, so we fall through to Coinbase and
+// Kraken. Shorter cache than fiat — bitcoin moves faster; the locked-rate
+// model still applies on save.
+const BTC_PROVIDERS: {
+  url: string;
+  parse: (data: unknown) => number | undefined;
+}[] = [
+  {
+    url: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
+    parse: (d) => (d as { bitcoin?: { usd?: number } }).bitcoin?.usd,
+  },
+  {
+    url: "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+    parse: (d) =>
+      Number((d as { data?: { amount?: string } }).data?.amount) || undefined,
+  },
+  {
+    url: "https://api.kraken.com/0/public/Ticker?pair=XBTUSD",
+    parse: (d) =>
+      Number(
+        (d as { result?: { XXBTZUSD?: { c?: string[] } } }).result?.XXBTZUSD
+          ?.c?.[0]
+      ) || undefined,
+  },
+];
+
 async function satsInUsd(): Promise<number | null> {
-  const upstream = await fetch(
-    "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
-    { next: { revalidate: 300 } }
-  );
-  if (!upstream.ok) return null;
-  const data = (await upstream.json()) as { bitcoin?: { usd?: number } };
-  const btcUsd = data.bitcoin?.usd;
-  return typeof btcUsd === "number" && btcUsd > 0 ? btcUsd / 1e8 : null;
+  for (const provider of BTC_PROVIDERS) {
+    try {
+      const upstream = await fetch(provider.url, {
+        next: { revalidate: 300 },
+        signal: AbortSignal.timeout(6000),
+      });
+      if (!upstream.ok) continue;
+      const btcUsd = provider.parse(await upstream.json());
+      if (typeof btcUsd === "number" && btcUsd > 0) return btcUsd / 1e8;
+    } catch {
+      // fall through to the next provider
+    }
+  }
+  return null;
 }
 
 // Value of 1 unit of `code` in USD. SATS handled by the caller.
