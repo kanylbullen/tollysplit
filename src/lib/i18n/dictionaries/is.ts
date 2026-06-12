@@ -202,6 +202,7 @@ const is: Dict = {
     add: "Bæta við",
     cantDeleteHint: "Ekki er hægt að fjarlægja þátttakendur með skráðum færslum.",
     payAdd: "+ Bæta við greiðsluleið",
+    payAddAnother: "+ Bæta við fleiri",
     payShow: "{method}: {value} · breyta",
     removeSuffix: " (tómt = fjarlægja)",
     appearance: "Útlit",
@@ -241,6 +242,7 @@ const is: Dict = {
     bad_recipient: "Veldu annan viðtakanda en sendanda.",
     bad_payment_type: "Óþekkt greiðsluleið.",
     bad_payment_value: "Ógildar upplýsingar — athugaðu númerið eða IBAN.",
+    too_many_methods: "Að hámarki 8 greiðsluleiðir á mann.",
     rate_limited:
       "Óvenju margir tollysplitir eru að verða til núna — bíddu aðeins og reyndu aftur.",
     need_two_participants: "Bættu við að minnsta kosti tveimur þátttakendum.",

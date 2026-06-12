@@ -202,6 +202,7 @@ const en: Dict = {
     add: "Add",
     cantDeleteHint: "Participants with recorded entries can't be removed.",
     payAdd: "+ Add payment method",
+    payAddAnother: "+ Add another",
     payShow: "{method}: {value} · edit",
     removeSuffix: " (empty = remove)",
     appearance: "Appearance",
@@ -241,6 +242,7 @@ const en: Dict = {
     bad_recipient: "Choose a recipient other than the sender.",
     bad_payment_type: "Unknown payment method.",
     bad_payment_value: "Invalid details — check the number or IBAN.",
+    too_many_methods: "Max 8 payment methods per person.",
     rate_limited:
       "Unusually many tollysplits are being created right now — wait a moment and try again.",
     need_two_participants: "Add at least two participants.",

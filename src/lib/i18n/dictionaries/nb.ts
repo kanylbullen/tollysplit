@@ -202,6 +202,7 @@ const nb: Dict = {
     add: "Legg til",
     cantDeleteHint: "Deltakere med registrerte poster kan ikke fjernes.",
     payAdd: "+ Legg til betalingsmåte",
+    payAddAnother: "+ Legg til flere",
     payShow: "{method}: {value} · endre",
     removeSuffix: " (tomt = fjern)",
     appearance: "Utseende",
@@ -241,6 +242,7 @@ const nb: Dict = {
     bad_recipient: "Velg en annen mottaker enn avsenderen.",
     bad_payment_type: "Ukjent betalingsmåte.",
     bad_payment_value: "Ugyldige opplysninger — sjekk nummeret eller IBAN.",
+    too_many_methods: "Maks 8 betalingsmåter per person.",
     rate_limited:
       "Uvanlig mange tollysplits opprettes akkurat nå — vent litt og prøv igjen.",
     need_two_participants: "Legg til minst to deltakere.",
