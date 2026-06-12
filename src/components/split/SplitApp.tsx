@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { track } from "@vercel/analytics";
 import type { Entry, EntryKind, SplitData } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/client";
 import { EntriesView } from "./EntriesView";
@@ -104,6 +105,7 @@ export function SplitApp({ data }: { data: SplitData }) {
             rel="noopener noreferrer"
             aria-label="Buy me a beer"
             title="Buy me a beer"
+            onClick={() => track("beer_clicked", { location: "split_header" })}
             className="rounded-xl bg-primary-soft px-2.5 py-2 text-sm transition-colors hover:bg-primary-soft/70"
           >
             🍺
