@@ -22,6 +22,8 @@ export type Payment = {
   fromName: string;
   toName: string;
   methods: PaymentMethod[];
+  /** Set if the recipient's payment details ever changed from the original. */
+  changedAt: string | null;
   amountCents: number;
   currency: string;
   message: string;
@@ -129,6 +131,13 @@ export function PaymentDialog({
               ≈ {new Intl.NumberFormat(LOCALE_INTL[locale]).format(ln.sats)} sats
             </p>
           )}
+          {/* The wallet shows only the invoice, not who is behind it — show
+              the recipient's lightning address here so it can be verified. */}
+          {isLightning && (
+            <p className="mt-1 break-all font-mono text-sm font-semibold">
+              ⚡ {method.value}
+            </p>
+          )}
         </div>
 
         {payment.methods.length > 1 && (
@@ -152,6 +161,18 @@ export function PaymentDialog({
           </div>
         )}
 
+        {payment.changedAt && (
+          // text-red-700, not -800: the dark theme flips red-50/red-700 in
+          // globals.css; -800 would stay dark-on-dark.
+          <p className="w-full rounded-xl bg-red-50 px-3.5 py-2.5 text-left text-xs font-semibold text-red-700">
+            🚨{" "}
+            {t(dict.pay.changedWarning, {
+              date: new Date(payment.changedAt).toLocaleDateString(
+                LOCALE_INTL[locale]
+              ),
+            })}
+          </p>
+        )}
         <p className="rounded-xl bg-amber-50 px-3.5 py-2.5 text-left text-xs text-amber-800">
           ⚠️ {dict.pay.verifyWarning}
           {isLightning && ` ${dict.pay.lnIrreversible}`}

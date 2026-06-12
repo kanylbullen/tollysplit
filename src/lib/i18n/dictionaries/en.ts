@@ -163,6 +163,8 @@ const en: Dict = {
       "Couldn't fetch a Lightning invoice right now — copy the address and pay manually from your wallet.",
     lnCopyInvoice: "Lightning invoice",
     lnIrreversible: "Note: Lightning payments cannot be reversed.",
+    changedWarning:
+      "The recipient's payment details were changed on {date} and differ from what was first entered. Confirm with the recipient through another channel before paying.",
     openOther:
       "Open {method} on your phone and pay {amount} to the details above.",
     verifyWarning:

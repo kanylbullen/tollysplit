@@ -203,6 +203,7 @@ export function BalancesView({
                             fromName: from?.name ?? "?",
                             toName: to!.name,
                             methods,
+                            changedAt: to!.payment_changed_at,
                             amountCents: s.amount_cents,
                             currency,
                             message: splitTitle,

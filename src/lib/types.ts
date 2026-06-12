@@ -10,6 +10,8 @@ export type Participant = {
   name: string;
   position: number;
   payment_methods: PaymentMethod[];
+  /** Set if the payment details ever diverged from what was first entered. */
+  payment_changed_at: string | null;
 };
 
 export type Share = {

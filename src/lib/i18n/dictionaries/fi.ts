@@ -163,6 +163,8 @@ const fi: Dict = {
       "Lightning-laskua ei saatu juuri nyt — kopioi osoite ja maksa manuaalisesti lompakostasi.",
     lnCopyInvoice: "Lightning-lasku",
     lnIrreversible: "Huom: Lightning-maksuja ei voi peruuttaa.",
+    changedWarning:
+      "Saajan maksutietoja muutettiin {date}, ja ne eroavat alun perin syötetyistä. Varmista saajalta toista kanavaa pitkin ennen maksamista.",
     openOther:
       "Avaa {method} puhelimessasi ja maksa {amount} yllä oleviin tietoihin.",
     verifyWarning:

@@ -163,6 +163,8 @@ const is: Dict = {
       "Ekki tókst að sækja Lightning-reikning núna — afritaðu netfangið og greiddu handvirkt úr veskinu þínu.",
     lnCopyInvoice: "Lightning-reikningur",
     lnIrreversible: "Athugið: Lightning-greiðslur er ekki hægt að afturkalla.",
+    changedWarning:
+      "Greiðsluupplýsingum viðtakanda var breytt {date} og þær eru aðrar en þær sem fyrst voru skráðar. Staðfestu við viðtakanda í gegnum aðra leið áður en þú greiðir.",
     openOther:
       "Opnaðu {method} í símanum þínum og borgaðu {amount} samkvæmt upplýsingunum að ofan.",
     verifyWarning:

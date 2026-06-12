@@ -163,6 +163,8 @@ const nb: Dict = {
       "Kunne ikke hente en Lightning-faktura akkurat nå — kopier adressen og betal manuelt fra lommeboken din.",
     lnCopyInvoice: "Lightning-faktura",
     lnIrreversible: "Obs: Lightning-betalinger kan ikke tilbakekalles.",
+    changedWarning:
+      "Mottakerens betalingsopplysninger ble endret {date} og avviker fra det som først ble lagt inn. Bekreft med mottakeren via en annen kanal før du betaler.",
     openOther:
       "Åpne {method} på telefonen din og betal {amount} til opplysningene over.",
     verifyWarning:

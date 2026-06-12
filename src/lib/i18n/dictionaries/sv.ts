@@ -163,6 +163,8 @@ const sv = {
       "Kunde inte hämta en Lightning-faktura just nu — kopiera adressen och betala manuellt från din plånbok.",
     lnCopyInvoice: "Lightning-faktura",
     lnIrreversible: "Obs: Lightning-betalningar går inte att återkalla.",
+    changedWarning:
+      "Mottagarens betaluppgifter ändrades {date} och skiljer sig från de som först lades in. Bekräfta med mottagaren via en annan kanal innan du betalar.",
     openOther:
       "Öppna {method} i din telefon och betala {amount} till uppgiften ovan.",
     verifyWarning:
