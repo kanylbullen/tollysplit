@@ -167,7 +167,8 @@ const en: Dict = {
     evmError:
       "Couldn't resolve the address right now — copy it manually and double-check with the recipient.",
     evmNote:
-      "Scan the QR code or copy the address. Agree with the recipient on network (e.g. Base, Arbitrum, mainnet) and token (e.g. USDC) before sending.",
+      "Open MetaMask directly, scan the QR with your wallet's scanner (on the home screen — send views often lack one), or copy the address. Agree with the recipient on network (e.g. Base, Arbitrum, mainnet) and token (e.g. USDC) before sending.",
+    openMetaMask: "Open in MetaMask",
     changedWarning:
       "The recipient's payment details were changed on {date} and differ from what was first entered. Confirm with the recipient through another channel before paying.",
     openOther:

@@ -348,7 +348,20 @@ export function PaymentDialog({
           )
         ) : isEvm ? (
           evm.status === "ready" && (
-            <p className="text-sm text-stone-500">{dict.pay.evmNote}</p>
+            <>
+              <p className="text-sm text-stone-500">{dict.pay.evmNote}</p>
+              {/* No chainId in the link on purpose — it prefills the
+                  recipient but leaves the network choice to the payer. */}
+              <a
+                href={`https://link.metamask.io/send/${evm.address}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => track("metamask_opened")}
+                className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-white shadow-md transition-colors hover:bg-primary-dark"
+              >
+                {dict.pay.openMetaMask}
+              </a>
+            </>
           )
         ) : (
           <p className="text-sm text-stone-500">

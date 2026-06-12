@@ -167,7 +167,8 @@ const is: Dict = {
     evmError:
       "Ekki tókst að fletta upp vistfanginu núna — afritaðu það handvirkt og staðfestu við viðtakanda.",
     evmNote:
-      "Skannaðu QR-kóðann eða afritaðu vistfangið. Komdu þér saman við viðtakanda um net (t.d. Base, Arbitrum, mainnet) og token (t.d. USDC) áður en þú sendir.",
+      "Opnaðu MetaMask beint, skannaðu QR-kóðann með skanna veskisins (á forsíðunni — sendiskjáinn vantar oft skanna), eða afritaðu vistfangið. Komdu þér saman við viðtakanda um net (t.d. Base, Arbitrum, mainnet) og token (t.d. USDC) áður en þú sendir.",
+    openMetaMask: "Opna í MetaMask",
     changedWarning:
       "Greiðsluupplýsingum viðtakanda var breytt {date} og þær eru aðrar en þær sem fyrst voru skráðar. Staðfestu við viðtakanda í gegnum aðra leið áður en þú greiðir.",
     openOther:

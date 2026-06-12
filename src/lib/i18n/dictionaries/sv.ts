@@ -167,7 +167,8 @@ const sv = {
     evmError:
       "Kunde inte slå upp adressen just nu — kopiera den manuellt och dubbelkolla med mottagaren.",
     evmNote:
-      "Scanna QR-koden eller kopiera adressen. Kom överens med mottagaren om nätverk (t.ex. Base, Arbitrum, mainnet) och token (t.ex. USDC) innan du skickar.",
+      "Öppna MetaMask direkt, scanna QR-koden med plånbokens scanner (på startsidan — send-vyn saknar ofta scanner), eller kopiera adressen. Kom överens med mottagaren om nätverk (t.ex. Base, Arbitrum, mainnet) och token (t.ex. USDC) innan du skickar.",
+    openMetaMask: "Öppna i MetaMask",
     changedWarning:
       "Mottagarens betaluppgifter ändrades {date} och skiljer sig från de som först lades in. Bekräfta med mottagaren via en annan kanal innan du betalar.",
     openOther:

@@ -167,7 +167,8 @@ const nb: Dict = {
     evmError:
       "Kunne ikke slå opp adressen akkurat nå — kopier den manuelt og dobbeltsjekk med mottakeren.",
     evmNote:
-      "Skann QR-koden eller kopier adressen. Bli enige med mottakeren om nettverk (f.eks. Base, Arbitrum, mainnet) og token (f.eks. USDC) før du sender.",
+      "Åpne MetaMask direkte, skann QR-koden med lommebokens skanner (på startsiden — send-visningen mangler ofte skanner), eller kopier adressen. Bli enige med mottakeren om nettverk (f.eks. Base, Arbitrum, mainnet) og token (f.eks. USDC) før du sender.",
+    openMetaMask: "Åpne i MetaMask",
     changedWarning:
       "Mottakerens betalingsopplysninger ble endret {date} og avviker fra det som først ble lagt inn. Bekreft med mottakeren via en annen kanal før du betaler.",
     openOther:
