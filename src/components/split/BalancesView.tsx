@@ -131,7 +131,7 @@ export function BalancesView({
                 ))}
               </select>
               <input
-                inputMode={PAYMENT_META[payType].kind === "iban" ? "text" : "tel"}
+                inputMode={PAYMENT_META[payType].kind === "phone" ? "tel" : "text"}
                 placeholder={PAYMENT_META[payType].placeholder}
                 value={payInput}
                 onChange={(e) => setPayInput(e.target.value)}

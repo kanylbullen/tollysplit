@@ -215,7 +215,7 @@ export function SettingsDialog({
                     ))}
                   </select>
                   <input
-                    inputMode={PAYMENT_META[payType].kind === "iban" ? "text" : "tel"}
+                    inputMode={PAYMENT_META[payType].kind === "phone" ? "tel" : "text"}
                     placeholder={`${PAYMENT_META[payType].placeholder}${dict.set.removeSuffix}`}
                     value={payText}
                     onChange={(e) => setPayText(e.target.value)}

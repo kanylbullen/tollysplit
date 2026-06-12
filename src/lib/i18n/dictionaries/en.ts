@@ -143,6 +143,9 @@ const en: Dict = {
     swishScan:
       "Scan the QR code with the Swish app, or open Swish directly on this device:",
     openSwish: "Open the Swish app",
+    openRevolut: "Open Revolut",
+    revolutOpen:
+      "Open Revolut, enter the amount above and check the recipient before sending:",
     openOther:
       "Open {method} on your phone and pay {amount} to the details above.",
     verifyWarning:

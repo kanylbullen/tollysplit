@@ -143,6 +143,9 @@ const sv = {
     swishScan:
       "Scanna QR-koden med Swish-appen, eller öppna Swish direkt på den här enheten:",
     openSwish: "Öppna Swish-appen",
+    openRevolut: "Öppna Revolut",
+    revolutOpen:
+      "Öppna Revolut, skriv in beloppet ovan och kontrollera mottagaren innan du skickar:",
     openOther:
       "Öppna {method} i din telefon och betala {amount} till uppgiften ovan.",
     verifyWarning:
