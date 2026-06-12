@@ -135,6 +135,15 @@ const sv = {
     share: "andel {amount}",
     totalSpent: "Totalt spenderat",
   },
+  settle: {
+    title: "{from} betalar {to}",
+    owes: "{from} är skyldig {to} {amount}. Hur mycket betalas nu?",
+    whole: "Hela beloppet",
+    part: "En del",
+    confirm: "Registrera betalning",
+    errAmount: "Ange ett giltigt belopp.",
+    errTooMuch: "Beloppet kan inte överstiga {max}.",
+  },
   pay: {
     title: "Betala {name}",
     via: "{from} betalar {to} via {method}",
@@ -217,6 +226,9 @@ const sv = {
       "Den här tollyspliten raderas automatiskt efter 6 månader utan aktivitet. Skapa splits inloggad om du vill kunna stänga av gallringen.",
     purgeHint1: "Betaluppgifter raderas automatiskt när alla är kvitt. Läs mer i",
     privacyLink: "integritetspolicyn",
+    keepPaymentToggle: "Behåll betaluppgifter även när alla är kvitt",
+    keepPaymentHint:
+      "Bra för löpande splits — annars raderas de automatiskt när saldot nollas.",
     dataExport: "Exportera data",
     dataExportHint: "Ladda ner hela den här tollyspliten.",
     changeIdentity: "Byt vem du är på den här enheten",

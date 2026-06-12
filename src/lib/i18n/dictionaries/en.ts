@@ -135,6 +135,15 @@ const en: Dict = {
     share: "share {amount}",
     totalSpent: "Total spent",
   },
+  settle: {
+    title: "{from} pays {to}",
+    owes: "{from} owes {to} {amount}. How much is being paid now?",
+    whole: "Full amount",
+    part: "Part",
+    confirm: "Record payment",
+    errAmount: "Enter a valid amount.",
+    errTooMuch: "The amount can't exceed {max}.",
+  },
   pay: {
     title: "Pay {name}",
     via: "{from} pays {to} via {method}",
@@ -217,6 +226,9 @@ const en: Dict = {
       "This tollysplit is deleted automatically after 6 months of inactivity. Create splits while signed in if you want to turn off purging.",
     purgeHint1: "Payment details are wiped automatically once everyone is square. Read more in the",
     privacyLink: "privacy policy",
+    keepPaymentToggle: "Keep payment info even after everyone is square",
+    keepPaymentHint:
+      "Handy for ongoing splits — otherwise it's wiped automatically when balances hit zero.",
     dataExport: "Export data",
     dataExportHint: "Download this whole tollysplit.",
     changeIdentity: "Change who you are on this device",

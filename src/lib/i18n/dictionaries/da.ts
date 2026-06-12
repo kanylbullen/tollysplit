@@ -135,6 +135,15 @@ const da: Dict = {
     share: "andel {amount}",
     totalSpent: "Samlet brugt",
   },
+  settle: {
+    title: "{from} betaler {to}",
+    owes: "{from} skylder {to} {amount}. Hvor meget betales nu?",
+    whole: "Hele beløbet",
+    part: "En del",
+    confirm: "Registrér betaling",
+    errAmount: "Angiv et gyldigt beløb.",
+    errTooMuch: "Beløbet kan ikke overstige {max}.",
+  },
   pay: {
     title: "Betal {name}",
     via: "{from} betaler {to} via {method}",
@@ -217,6 +226,9 @@ const da: Dict = {
       "Denne tollysplit slettes automatisk efter 6 måneder uden aktivitet. Opret splits, mens du er logget ind, hvis du vil kunne slå sletningen fra.",
     purgeHint1: "Betalingsoplysninger slettes automatisk, når alle har gjort op. Læs mere i",
     privacyLink: "privatlivspolitikken",
+    keepPaymentToggle: "Behold betalingsoplysninger, også når alle er kvit",
+    keepPaymentHint:
+      "Praktisk til løbende splits — ellers slettes de automatisk, når saldoen nulstilles.",
     dataExport: "Eksportér data",
     dataExportHint: "Download hele denne tollysplit.",
     changeIdentity: "Skift hvem du er på denne enhed",

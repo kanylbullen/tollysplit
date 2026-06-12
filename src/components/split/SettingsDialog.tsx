@@ -10,6 +10,7 @@ import {
   deleteParticipantAction,
   renameParticipantAction,
   setAutoPurgeAction,
+  setKeepPaymentAction,
   setPaymentMethodsAction,
   updateSplitAction,
 } from "@/app/k/[key]/actions";
@@ -379,6 +380,23 @@ export function SettingsDialog({
 
         <section>
           <Label>{dict.set.privacy}</Label>
+          <label className="mb-2 flex cursor-pointer items-start gap-2.5 text-sm">
+            <input
+              type="checkbox"
+              checked={split.keep_payment_methods}
+              disabled={pending}
+              onChange={(e) =>
+                run(() => setKeepPaymentAction(split.key, e.target.checked))
+              }
+              className="mt-0.5 h-4 w-4 accent-teal-600"
+            />
+            <span>
+              {dict.set.keepPaymentToggle}
+              <span className="block text-xs text-stone-400">
+                {dict.set.keepPaymentHint}
+              </span>
+            </span>
+          </label>
           {split.has_owner ? (
             <label className="flex cursor-pointer items-start gap-2.5 text-sm">
               <input
