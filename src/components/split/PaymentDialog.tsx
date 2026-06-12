@@ -162,8 +162,8 @@ export function PaymentDialog({
         )}
 
         {payment.changedAt && (
-          {/* text-red-700, not -800: the dark theme flips red-50/red-700 in
-              globals.css; -800 would stay dark-on-dark. */}
+          // text-red-700, not -800: the dark theme flips red-50/red-700 in
+          // globals.css; -800 would stay dark-on-dark.
           <p className="w-full rounded-xl bg-red-50 px-3.5 py-2.5 text-left text-xs font-semibold text-red-700">
             🚨{" "}
             {t(dict.pay.changedWarning, {
