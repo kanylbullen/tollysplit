@@ -1,10 +1,16 @@
-export type PaymentType = "swish" | "vipps" | "mobilepay" | "iban" | "revolut";
+export type PaymentType =
+  | "swish"
+  | "vipps"
+  | "mobilepay"
+  | "iban"
+  | "revolut"
+  | "lightning";
 
 type PaymentMeta = {
   label: string;
   /** Country hint shown next to the label. */
   hint: string;
-  kind: "phone" | "iban" | "revtag";
+  kind: "phone" | "iban" | "revtag" | "lnaddress";
   placeholder: string;
 };
 
@@ -13,6 +19,7 @@ export const PAYMENT_META: Record<PaymentType, PaymentMeta> = {
   vipps: { label: "Vipps", hint: "NO", kind: "phone", placeholder: "412 34 567" },
   mobilepay: { label: "MobilePay", hint: "DK/FI", kind: "phone", placeholder: "12 34 56 78" },
   revolut: { label: "Revolut", hint: "revtag", kind: "revtag", placeholder: "@john" },
+  lightning: { label: "Lightning", hint: "bitcoin", kind: "lnaddress", placeholder: "satoshi@strike.me" },
   iban: { label: "IBAN", hint: "", kind: "iban", placeholder: "SE35 5000 0000 0549 1000 0003" },
 };
 
@@ -28,6 +35,14 @@ export function normalizePayment(type: PaymentType, input: string): string | nul
     // Revtags are case-insensitive; store lowercase without the leading '@'.
     const clean = input.trim().replace(/^@/, "").toLowerCase();
     return /^[a-z0-9]{4,30}$/.test(clean) ? clean : null;
+  }
+  if (PAYMENT_META[type].kind === "lnaddress") {
+    // LUD-16 lightning address — email-like, case-insensitive.
+    const clean = input.trim().toLowerCase();
+    return /^[a-z0-9._%+-]+@([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/.test(clean) &&
+      clean.length <= 320
+      ? clean
+      : null;
   }
   // phone-type (swish/vipps/mobilepay)
   const clean = input.replace(/[\s\-()./]/g, "");

@@ -155,6 +155,14 @@ const is: Dict = {
     openRevolut: "Opna Revolut",
     revolutOpen:
       "Opnaðu Revolut, sláðu inn upphæðina að ofan og athugaðu viðtakanda áður en þú sendir:",
+    openLightning: "Opna Lightning-veski",
+    lnScan:
+      "Skannaðu QR-kóðann með hvaða Lightning-veski sem er, eða opnaðu beint á þessu tæki:",
+    lnLoading: "Sæki Lightning-reikning…",
+    lnError:
+      "Ekki tókst að sækja Lightning-reikning núna — afritaðu netfangið og greiddu handvirkt úr veskinu þínu.",
+    lnCopyInvoice: "Lightning-reikningur",
+    lnIrreversible: "Athugið: Lightning-greiðslur er ekki hægt að afturkalla.",
     openOther:
       "Opnaðu {method} í símanum þínum og borgaðu {amount} samkvæmt upplýsingunum að ofan.",
     verifyWarning:

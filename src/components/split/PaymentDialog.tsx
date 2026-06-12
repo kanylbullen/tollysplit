@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { track } from "@vercel/analytics";
+import { renderSVG } from "uqr";
 import { Dialog } from "@/components/ui";
 import { formatMoney } from "@/lib/money";
 import {
@@ -26,6 +27,12 @@ export type Payment = {
   message: string;
 };
 
+type LnState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "ready"; sats: number; pr: string }
+  | { status: "error" };
+
 export function PaymentDialog({
   open,
   onClose,
@@ -38,25 +45,69 @@ export function PaymentDialog({
   const { dict, t, locale } = useI18n();
   const [copied, setCopied] = useState(false);
   const [selected, setSelected] = useState(0);
+  const [ln, setLn] = useState<LnState>({ status: "idle" });
 
   // Reset the chosen method whenever a new payment is opened.
   useEffect(() => {
     if (open) setSelected(0);
   }, [open, payment]);
 
-  if (!payment || payment.methods.length === 0) return null;
+  const method =
+    payment && payment.methods.length > 0
+      ? payment.methods[Math.min(selected, payment.methods.length - 1)]
+      : null;
 
-  const method = payment.methods[Math.min(selected, payment.methods.length - 1)];
+  // Lightning: exchange the address for a BOLT11 invoice on the exact amount.
+  // Sats amount is computed from the split currency at the current rate;
+  // the invoice itself bakes the amount, so what you scan is what you pay.
+  useEffect(() => {
+    if (!open || !payment || method?.type !== "lightning") {
+      setLn({ status: "idle" });
+      return;
+    }
+    let cancelled = false;
+    setLn({ status: "loading" });
+    (async () => {
+      try {
+        const fx = await fetch(
+          `/api/fx?from=SATS&to=${payment.currency}`
+        ).then((r) => r.json());
+        if (typeof fx.rate !== "number" || fx.rate <= 0) throw new Error();
+        const sats = Math.max(
+          1,
+          Math.round(payment.amountCents / 100 / fx.rate)
+        );
+        const inv = await fetch(
+          `/api/ln-invoice?address=${encodeURIComponent(method.value)}&msat=${sats * 1000}`
+        ).then((r) => r.json());
+        if (typeof inv.pr !== "string") throw new Error();
+        if (!cancelled) setLn({ status: "ready", sats, pr: inv.pr });
+      } catch {
+        if (!cancelled) setLn({ status: "error" });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, payment, method?.type, method?.value]);
+
+  if (!payment || !method) return null;
+
   const type: PaymentType = method.type;
   const rich = hasRichLink(type);
   const appLink = hasAppLink(type);
+  const isLightning = type === "lightning";
   const pretty = formatPayment(type, method.value);
   const label = PAYMENT_META[type].label;
   const amount = formatMoney(payment.amountCents, payment.currency, LOCALE_INTL[locale]);
   const qrSrc = `/api/swish-qr?number=${method.value}&amount=${payment.amountCents}&msg=${encodeURIComponent(payment.message)}`;
 
   async function copy() {
-    await navigator.clipboard.writeText(method.value);
+    if (!method) return;
+    const text =
+      isLightning && ln.status === "ready" ? ln.pr : method.value;
+    await navigator.clipboard.writeText(text);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2000);
   }
@@ -71,7 +122,14 @@ export function PaymentDialog({
             method: label,
           })}
         </p>
-        <p className="text-3xl font-black tracking-tight">{amount}</p>
+        <div>
+          <p className="text-3xl font-black tracking-tight">{amount}</p>
+          {isLightning && ln.status === "ready" && payment.currency !== "SATS" && (
+            <p className="text-sm font-semibold text-stone-500">
+              ≈ {new Intl.NumberFormat(LOCALE_INTL[locale]).format(ln.sats)} sats
+            </p>
+          )}
+        </div>
 
         {payment.methods.length > 1 && (
           <div className="flex w-full flex-wrap justify-center gap-1.5">
@@ -96,6 +154,7 @@ export function PaymentDialog({
 
         <p className="rounded-xl bg-amber-50 px-3.5 py-2.5 text-left text-xs text-amber-800">
           ⚠️ {dict.pay.verifyWarning}
+          {isLightning && ` ${dict.pay.lnIrreversible}`}
         </p>
 
         {rich && open && (
@@ -109,11 +168,34 @@ export function PaymentDialog({
           />
         )}
 
+        {isLightning && ln.status === "ready" && (
+          <div
+            className="h-[220px] w-[220px] rounded-xl border border-stone-200 bg-white p-2 [&>svg]:h-full [&>svg]:w-full"
+            aria-label={`Lightning-QR till ${payment.toName}`}
+            dangerouslySetInnerHTML={{
+              __html: renderSVG(`lightning:${ln.pr.toUpperCase()}`, {
+                ecc: "M",
+                border: 1,
+              }),
+            }}
+          />
+        )}
+        {isLightning && ln.status === "loading" && (
+          <p className="text-sm text-stone-500">{dict.pay.lnLoading}</p>
+        )}
+        {isLightning && ln.status === "error" && (
+          <p className="text-sm text-negative">{dict.pay.lnError}</p>
+        )}
+
         <button
           onClick={copy}
-          className="w-full rounded-xl border border-stone-300 bg-surface px-4 py-3 font-mono text-sm font-semibold transition-colors hover:border-primary"
+          className="w-full truncate rounded-xl border border-stone-300 bg-surface px-4 py-3 font-mono text-sm font-semibold transition-colors hover:border-primary"
         >
-          {copied ? dict.pay.copied : `${pretty}  ·  ${dict.pay.copy}`}
+          {copied
+            ? dict.pay.copied
+            : isLightning && ln.status === "ready"
+              ? `${dict.pay.lnCopyInvoice}  ·  ${dict.pay.copy}`
+              : `${pretty}  ·  ${dict.pay.copy}`}
         </button>
 
         {rich ? (
@@ -140,6 +222,19 @@ export function PaymentDialog({
               {dict.pay.openRevolut}
             </a>
           </>
+        ) : isLightning ? (
+          ln.status === "ready" && (
+            <>
+              <p className="text-sm text-stone-500">{dict.pay.lnScan}</p>
+              <a
+                href={`lightning:${ln.pr}`}
+                onClick={() => track("lightning_app_opened")}
+                className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-white shadow-md transition-colors hover:bg-primary-dark"
+              >
+                {dict.pay.openLightning}
+              </a>
+            </>
+          )
         ) : (
           <p className="text-sm text-stone-500">
             {t(dict.pay.openOther, { method: label, amount })}

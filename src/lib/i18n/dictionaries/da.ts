@@ -155,6 +155,14 @@ const da: Dict = {
     openRevolut: "Åbn Revolut",
     revolutOpen:
       "Åbn Revolut, indtast beløbet ovenfor, og tjek modtageren, før du sender:",
+    openLightning: "Åbn Lightning-wallet",
+    lnScan:
+      "Scan QR-koden med en valgfri Lightning-wallet, eller åbn direkte på denne enhed:",
+    lnLoading: "Henter Lightning-faktura…",
+    lnError:
+      "Kunne ikke hente en Lightning-faktura lige nu — kopiér adressen og betal manuelt fra din wallet.",
+    lnCopyInvoice: "Lightning-faktura",
+    lnIrreversible: "Bemærk: Lightning-betalinger kan ikke tilbagekaldes.",
     openOther:
       "Åbn {method} på din telefon og betal {amount} til oplysningerne ovenfor.",
     verifyWarning:
