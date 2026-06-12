@@ -155,6 +155,14 @@ const en: Dict = {
     openRevolut: "Open Revolut",
     revolutOpen:
       "Open Revolut, enter the amount above and check the recipient before sending:",
+    openLightning: "Open Lightning wallet",
+    lnScan:
+      "Scan the QR code with any Lightning wallet, or open directly on this device:",
+    lnLoading: "Fetching Lightning invoice…",
+    lnError:
+      "Couldn't fetch a Lightning invoice right now — copy the address and pay manually from your wallet.",
+    lnCopyInvoice: "Lightning invoice",
+    lnIrreversible: "Note: Lightning payments cannot be reversed.",
     openOther:
       "Open {method} on your phone and pay {amount} to the details above.",
     verifyWarning:

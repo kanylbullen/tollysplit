@@ -155,6 +155,14 @@ const sv = {
     openRevolut: "Öppna Revolut",
     revolutOpen:
       "Öppna Revolut, skriv in beloppet ovan och kontrollera mottagaren innan du skickar:",
+    openLightning: "Öppna Lightning-plånbok",
+    lnScan:
+      "Scanna QR-koden med valfri Lightning-plånbok, eller öppna direkt på den här enheten:",
+    lnLoading: "Hämtar Lightning-faktura…",
+    lnError:
+      "Kunde inte hämta en Lightning-faktura just nu — kopiera adressen och betala manuellt från din plånbok.",
+    lnCopyInvoice: "Lightning-faktura",
+    lnIrreversible: "Obs: Lightning-betalningar går inte att återkalla.",
     openOther:
       "Öppna {method} i din telefon och betala {amount} till uppgiften ovan.",
     verifyWarning:

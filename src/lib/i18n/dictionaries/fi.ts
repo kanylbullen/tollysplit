@@ -155,6 +155,14 @@ const fi: Dict = {
     openRevolut: "Avaa Revolut",
     revolutOpen:
       "Avaa Revolut, syötä yllä oleva summa ja tarkista saaja ennen lähettämistä:",
+    openLightning: "Avaa Lightning-lompakko",
+    lnScan:
+      "Skannaa QR-koodi millä tahansa Lightning-lompakolla tai avaa suoraan tällä laitteella:",
+    lnLoading: "Haetaan Lightning-laskua…",
+    lnError:
+      "Lightning-laskua ei saatu juuri nyt — kopioi osoite ja maksa manuaalisesti lompakostasi.",
+    lnCopyInvoice: "Lightning-lasku",
+    lnIrreversible: "Huom: Lightning-maksuja ei voi peruuttaa.",
     openOther:
       "Avaa {method} puhelimessasi ja maksa {amount} yllä oleviin tietoihin.",
     verifyWarning:

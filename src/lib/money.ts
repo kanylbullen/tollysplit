@@ -11,6 +11,7 @@ export const CURRENCIES = [
   "CHF",
   "PLN",
   "THB",
+  "SATS",
 ] as const;
 
 export function formatMoney(
@@ -18,6 +19,15 @@ export function formatMoney(
   currency: string,
   locale = "sv-SE"
 ): string {
+  // Bitcoin sats — not an ISO code, so Intl can't format it as a currency.
+  // Whole sats in practice; fractions only appear via FX conversion.
+  if (currency === "SATS") {
+    const formatted = new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: cents % 100 === 0 ? 0 : 2,
+    }).format(cents / 100);
+    return `${formatted} sats`;
+  }
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,

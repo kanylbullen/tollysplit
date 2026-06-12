@@ -78,8 +78,13 @@ export function BalancesView({
     if (!me) return;
     const normalized = normalizePayment(payType, payInput);
     if (!normalized) {
+      const kind = PAYMENT_META[payType].kind;
       setPayError(
-        PAYMENT_META[payType].kind === "iban" ? dict.bal.errIban : dict.bal.errPhone
+        kind === "iban"
+          ? dict.bal.errIban
+          : kind === "phone"
+            ? dict.bal.errPhone
+            : te("bad_payment_value")
       );
       return;
     }
