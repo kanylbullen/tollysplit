@@ -145,7 +145,7 @@ const is: Dict = {
     openSwish: "Opna Swish-appið",
     openRevolut: "Opna Revolut",
     revolutOpen:
-      "Opnaðu Revolut til að greiða — athugaðu viðtakanda í appinu áður en þú sendir:",
+      "Opnaðu Revolut, sláðu inn upphæðina að ofan og athugaðu viðtakanda áður en þú sendir:",
     openOther:
       "Opnaðu {method} í símanum þínum og borgaðu {amount} samkvæmt upplýsingunum að ofan.",
     verifyWarning:

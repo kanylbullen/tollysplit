@@ -101,7 +101,7 @@ export function PaymentDialog({
           <>
             <p className="text-sm text-stone-500">{dict.pay.revolutOpen}</p>
             <a
-              href={revolutLink(payment.toValue, payment.amountCents, payment.currency)}
+              href={revolutLink(payment.toValue)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => track("revolut_app_opened")}

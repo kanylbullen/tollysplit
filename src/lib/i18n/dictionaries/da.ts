@@ -145,7 +145,7 @@ const da: Dict = {
     openSwish: "Åbn Swish-appen",
     openRevolut: "Åbn Revolut",
     revolutOpen:
-      "Åbn Revolut for at betale — tjek modtageren i appen, før du sender:",
+      "Åbn Revolut, indtast beløbet ovenfor, og tjek modtageren, før du sender:",
     openOther:
       "Åbn {method} på din telefon og betal {amount} til oplysningerne ovenfor.",
     verifyWarning:

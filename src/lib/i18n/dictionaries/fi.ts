@@ -145,7 +145,7 @@ const fi: Dict = {
     openSwish: "Avaa Swish-sovellus",
     openRevolut: "Avaa Revolut",
     revolutOpen:
-      "Avaa Revolut maksaaksesi — tarkista saaja sovelluksessa ennen lähettämistä:",
+      "Avaa Revolut, syötä yllä oleva summa ja tarkista saaja ennen lähettämistä:",
     openOther:
       "Avaa {method} puhelimessasi ja maksa {amount} yllä oleviin tietoihin.",
     verifyWarning:

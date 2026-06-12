@@ -145,7 +145,7 @@ const sv = {
     openSwish: "Öppna Swish-appen",
     openRevolut: "Öppna Revolut",
     revolutOpen:
-      "Öppna Revolut för att betala — kontrollera mottagaren i appen innan du skickar:",
+      "Öppna Revolut, skriv in beloppet ovan och kontrollera mottagaren innan du skickar:",
     openOther:
       "Öppna {method} i din telefon och betala {amount} till uppgiften ovan.",
     verifyWarning:

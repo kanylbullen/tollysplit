@@ -60,17 +60,12 @@ export function hasAppLink(type: PaymentType): boolean {
 }
 
 /**
- * Revolut.me deep link — opens Revolut to pay this revtag. Amount is appended
- * best-effort (`/{amount}{ccy}`); if Revolut ignores it, the link still opens
- * the recipient's profile so the payer just types the amount.
+ * Revolut.me deep link — opens Revolut to pay this revtag. Revolut only honours
+ * the bare profile path; amount can't be prefilled in a static revtag link
+ * (amount-bearing links are generated in-app), so the payer enters it manually.
  */
-export function revolutLink(
-  tag: string,
-  amountCents: number,
-  currency: string
-): string {
-  const amount = (amountCents / 100).toFixed(2);
-  return `https://revolut.me/${tag}/${amount}${currency.toLowerCase()}`;
+export function revolutLink(tag: string): string {
+  return `https://revolut.me/${tag}`;
 }
 
 /** Official Swish app link — opens the Swish app with everything prefilled. */

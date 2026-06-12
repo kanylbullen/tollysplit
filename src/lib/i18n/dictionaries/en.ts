@@ -145,7 +145,7 @@ const en: Dict = {
     openSwish: "Open the Swish app",
     openRevolut: "Open Revolut",
     revolutOpen:
-      "Open Revolut to pay — check the recipient in the app before sending:",
+      "Open Revolut, enter the amount above and check the recipient before sending:",
     openOther:
       "Open {method} on your phone and pay {amount} to the details above.",
     verifyWarning:
