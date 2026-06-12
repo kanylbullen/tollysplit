@@ -320,18 +320,21 @@ export function EntryDialog({
               onChange={(e) => setAmountText(e.target.value)}
               className="min-w-0 flex-1"
             />
-            <Select
-              aria-label={dict.entryD.amountLabel}
-              value={entryCurrency}
-              onChange={(e) => setEntryCurrency(e.target.value)}
-              className="w-24 shrink-0"
-            >
-              {CURRENCIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </Select>
+            {/* Wrapper keeps a fixed width so the shared Select's `w-full`
+                can't blow out the row and crush the amount input. */}
+            <div className="w-24 shrink-0">
+              <Select
+                aria-label={dict.entryD.amountLabel}
+                value={entryCurrency}
+                onChange={(e) => setEntryCurrency(e.target.value)}
+              >
+                {CURRENCIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
           {isForeign && (
             <p className="mt-1 text-xs text-stone-500">
