@@ -43,6 +43,8 @@ export type Split = {
   created_at: string;
   has_owner: boolean;
   auto_purge: boolean;
+  /** When true, payment info is NOT wiped once everyone is square. */
+  keep_payment_methods: boolean;
 };
 
 export type SplitData = {

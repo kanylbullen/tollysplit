@@ -64,7 +64,13 @@ export async function saveEntryAction(
     const supabase = await createClient();
     const { data } = await supabase.rpc("split_data", { p_key: key });
     const split = data as (SplitData & { not_found?: boolean }) | null;
-    if (split && !split.not_found && split.participants) {
+    // Skip the wipe when the split opted to keep payment info (long-running splits).
+    if (
+      split &&
+      !split.not_found &&
+      split.participants &&
+      !split.split?.keep_payment_methods
+    ) {
       const hasMethods = split.participants.some(
         (p) => p.payment_methods?.length > 0
       );
@@ -85,6 +91,13 @@ export async function setAutoPurgeAction(
   on: boolean
 ): Promise<ActionResult> {
   return rpc(key, "set_auto_purge", { p_key: key, p_on: on });
+}
+
+export async function setKeepPaymentAction(
+  key: string,
+  on: boolean
+): Promise<ActionResult> {
+  return rpc(key, "set_keep_payment", { p_key: key, p_on: on });
 }
 
 export async function deleteEntryAction(

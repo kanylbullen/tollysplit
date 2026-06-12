@@ -135,6 +135,15 @@ const is: Dict = {
     share: "hlutur {amount}",
     totalSpent: "Samtals eytt",
   },
+  settle: {
+    title: "{from} greiðir {to}",
+    owes: "{from} skuldar {to} {amount}. Hversu mikið er greitt núna?",
+    whole: "Öll upphæðin",
+    part: "Hluti",
+    confirm: "Skrá greiðslu",
+    errAmount: "Sláðu inn gilda upphæð.",
+    errTooMuch: "Upphæðin má ekki fara yfir {max}.",
+  },
   pay: {
     title: "Borga {name}",
     via: "{from} borgar {to} með {method}",
@@ -217,6 +226,9 @@ const is: Dict = {
       "Þessum tollysplit er eytt sjálfkrafa eftir 6 mánuði án virkni. Búðu til splitti innskráð(ur) ef þú vilt geta slökkt á eyðingunni.",
     purgeHint1: "Greiðsluupplýsingum er eytt sjálfkrafa þegar allir hafa gert upp. Lesið meira í",
     privacyLink: "persónuverndarstefnunni",
+    keepPaymentToggle: "Halda greiðsluupplýsingum þótt allir séu kvittir",
+    keepPaymentHint:
+      "Hentugt fyrir viðvarandi skiptingar — annars eyðast þær sjálfkrafa þegar staðan núllast.",
     dataExport: "Flytja út gögn",
     dataExportHint: "Sæktu allan þennan tollysplit.",
     changeIdentity: "Breyta hver þú ert á þessu tæki",

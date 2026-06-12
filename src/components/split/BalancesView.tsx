@@ -21,6 +21,7 @@ import { useI18n } from "@/lib/i18n/client";
 import { LOCALE_INTL } from "@/lib/i18n/config";
 import { avatarColor, initials, todayIso } from "./helpers";
 import { PaymentDialog, type Payment } from "./PaymentDialog";
+import { SettleDialog, type Settlement } from "./SettleDialog";
 
 // Pick a sensible default payment method from the split's currency.
 const DEFAULT_TYPE: Record<string, PaymentType> = {
@@ -58,7 +59,8 @@ export function BalancesView({
   const maxAbs = Math.max(1, ...[...bal.values()].map(Math.abs));
 
   const [pending, startTransition] = useTransition();
-  const [settling, setSettling] = useState<string | null>(null);
+  const [settleTarget, setSettleTarget] = useState<Settlement | null>(null);
+  const [settleOpen, setSettleOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payment, setPayment] = useState<Payment | null>(null);
   const [payOpen, setPayOpen] = useState(false);
@@ -90,9 +92,7 @@ export function BalancesView({
     });
   }
 
-  function recordSettlement(from: string, to: string, amount: number) {
-    const id = `${from}-${to}`;
-    setSettling(id);
+  function recordSettlement(from: string, to: string, amount: number, full: number) {
     setError(null);
     startTransition(async () => {
       const result = await saveEntryAction(splitKey, {
@@ -105,8 +105,10 @@ export function BalancesView({
         shares: [],
       });
       if (!result.ok) setError(te(result.error));
-      else track("settlement_paid");
-      setSettling(null);
+      else {
+        track("settlement_paid", { partial: amount < full });
+        setSettleOpen(false);
+      }
     });
   }
 
@@ -208,11 +210,20 @@ export function BalancesView({
                       </button>
                     )}
                     <button
-                      onClick={() => recordSettlement(s.from, s.to, s.amount_cents)}
+                      onClick={() => {
+                        setSettleTarget({
+                          from: s.from,
+                          to: s.to,
+                          fromName: from?.name ?? "?",
+                          toName: to?.name ?? "?",
+                          fullCents: s.amount_cents,
+                        });
+                        setSettleOpen(true);
+                      }}
                       disabled={pending}
                       className="rounded-xl border border-stone-300 px-3 py-2 text-sm font-semibold text-stone-600 transition-colors hover:border-primary hover:text-primary-dark disabled:opacity-50"
                     >
-                      {settling === id ? dict.bal.booking : dict.bal.markPaid}
+                      {dict.bal.markPaid}
                     </button>
                   </span>
                 </div>
@@ -307,6 +318,23 @@ export function BalancesView({
         open={payOpen}
         onClose={() => setPayOpen(false)}
         payment={payment}
+      />
+
+      <SettleDialog
+        open={settleOpen}
+        onClose={() => setSettleOpen(false)}
+        settlement={settleTarget}
+        currency={currency}
+        pending={pending}
+        onConfirm={(cents) =>
+          settleTarget &&
+          recordSettlement(
+            settleTarget.from,
+            settleTarget.to,
+            cents,
+            settleTarget.fullCents
+          )
+        }
       />
     </div>
   );

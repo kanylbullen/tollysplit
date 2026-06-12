@@ -135,6 +135,15 @@ const fi: Dict = {
     share: "osuus {amount}",
     totalSpent: "Yhteensä käytetty",
   },
+  settle: {
+    title: "{from} maksaa {to}",
+    owes: "{from} on velkaa {to} {amount}. Paljonko maksetaan nyt?",
+    whole: "Koko summa",
+    part: "Osa",
+    confirm: "Kirjaa maksu",
+    errAmount: "Anna kelvollinen summa.",
+    errTooMuch: "Summa ei voi ylittää {max}.",
+  },
   pay: {
     title: "Maksa {name}",
     via: "{from} maksaa {to} tavalla {method}",
@@ -217,6 +226,9 @@ const fi: Dict = {
       "Tämä tollysplit poistetaan automaattisesti 6 kuukauden käyttämättömyyden jälkeen. Luo splitit kirjautuneena, jos haluat voida poistaa automaattipoiston käytöstä.",
     purgeHint1: "Maksutiedot poistetaan automaattisesti, kun kaikki on selvitetty. Lue lisää",
     privacyLink: "tietosuojaselosteesta",
+    keepPaymentToggle: "Säilytä maksutiedot, vaikka kaikki olisivat tasoissa",
+    keepPaymentHint:
+      "Kätevä jatkuviin jakoihin — muuten ne poistetaan automaattisesti, kun saldo nollautuu.",
     dataExport: "Vie tiedot",
     dataExportHint: "Lataa koko tämä tollysplit.",
     changeIdentity: "Vaihda, kuka olet tällä laitteella",

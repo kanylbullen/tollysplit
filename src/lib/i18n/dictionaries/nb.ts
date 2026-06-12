@@ -135,6 +135,15 @@ const nb: Dict = {
     share: "andel {amount}",
     totalSpent: "Totalt brukt",
   },
+  settle: {
+    title: "{from} betaler {to}",
+    owes: "{from} skylder {to} {amount}. Hvor mye betales nå?",
+    whole: "Hele beløpet",
+    part: "En del",
+    confirm: "Registrer betaling",
+    errAmount: "Oppgi et gyldig beløp.",
+    errTooMuch: "Beløpet kan ikke overstige {max}.",
+  },
   pay: {
     title: "Betal {name}",
     via: "{from} betaler {to} via {method}",
@@ -217,6 +226,9 @@ const nb: Dict = {
       "Denne tollyspliten slettes automatisk etter 6 måneder uten aktivitet. Lag splits mens du er innlogget hvis du vil kunne slå av slettingen.",
     purgeHint1: "Betalingsopplysninger slettes automatisk når alle er gjort opp. Les mer i",
     privacyLink: "personvernerklæringen",
+    keepPaymentToggle: "Behold betalingsinfo selv når alle er skuls",
+    keepPaymentHint:
+      "Nyttig for løpende splitter — ellers slettes den automatisk når saldoen nulles.",
     dataExport: "Eksporter data",
     dataExportHint: "Last ned hele denne tollyspliten.",
     changeIdentity: "Endre hvem du er på denne enheten",
