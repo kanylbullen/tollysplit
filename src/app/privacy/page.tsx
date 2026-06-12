@@ -75,7 +75,8 @@ const SECTIONS: [string, React.ReactNode][] = [
       When a Swish QR code is shown, the recipient's number, amount and the
       split's name are sent to Swish's official QR service to draw the code.
       Vercel and Resend are US-based; transfers to them rely on their EU–US Data
-      Privacy Framework certification and standard contractual clauses.
+      Privacy Framework certification and standard contractual clauses. Data
+      processing agreements (GDPR Art. 28) are in place with all three.
     </>,
   ],
   [
