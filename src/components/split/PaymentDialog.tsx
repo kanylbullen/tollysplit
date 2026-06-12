@@ -8,7 +8,9 @@ import {
   PAYMENT_META,
   type PaymentType,
   formatPayment,
+  hasAppLink,
   hasRichLink,
+  revolutLink,
   swishAppLink,
 } from "@/lib/payment";
 import { useI18n } from "@/lib/i18n/client";
@@ -38,6 +40,7 @@ export function PaymentDialog({
   if (!payment) return null;
 
   const rich = hasRichLink(payment.toType);
+  const appLink = hasAppLink(payment.toType);
   const pretty = formatPayment(payment.toType, payment.toValue);
   const label = PAYMENT_META[payment.toType].label;
   const amount = formatMoney(payment.amountCents, payment.currency, LOCALE_INTL[locale]);
@@ -92,6 +95,19 @@ export function PaymentDialog({
               className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-white shadow-md transition-colors hover:bg-primary-dark"
             >
               {dict.pay.openSwish}
+            </a>
+          </>
+        ) : appLink ? (
+          <>
+            <p className="text-sm text-stone-500">{dict.pay.revolutOpen}</p>
+            <a
+              href={revolutLink(payment.toValue, payment.amountCents, payment.currency)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track("revolut_app_opened")}
+              className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-white shadow-md transition-colors hover:bg-primary-dark"
+            >
+              {dict.pay.openRevolut}
             </a>
           </>
         ) : (

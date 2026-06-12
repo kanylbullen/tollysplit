@@ -143,6 +143,9 @@ const fi: Dict = {
     swishScan:
       "Skannaa QR-koodi Swish-sovelluksella tai avaa Swish suoraan tällä laitteella:",
     openSwish: "Avaa Swish-sovellus",
+    openRevolut: "Avaa Revolut",
+    revolutOpen:
+      "Avaa Revolut maksaaksesi — tarkista saaja sovelluksessa ennen lähettämistä:",
     openOther:
       "Avaa {method} puhelimessasi ja maksa {amount} yllä oleviin tietoihin.",
     verifyWarning:
