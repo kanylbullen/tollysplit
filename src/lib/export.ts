@@ -30,8 +30,7 @@ export function exportJson(data: SplitData) {
     split: { title: split.title, currency: split.currency, created_at: split.created_at },
     participants: participants.map((p) => ({
       name: p.name,
-      payment_type: p.payment_type,
-      payment_value: p.payment_value,
+      payment_methods: p.payment_methods,
     })),
     entries: entries.map((e) => ({
       date: e.entry_date,

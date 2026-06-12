@@ -202,6 +202,7 @@ const fi: Dict = {
     add: "Lisää",
     cantDeleteHint: "Osallistujia, joilla on merkintöjä, ei voi poistaa.",
     payAdd: "+ Lisää maksutapa",
+    payAddAnother: "+ Lisää toinen",
     payShow: "{method}: {value} · muokkaa",
     removeSuffix: " (tyhjä = poista)",
     appearance: "Ulkoasu",
@@ -241,6 +242,7 @@ const fi: Dict = {
     bad_recipient: "Valitse muu vastaanottaja kuin maksaja.",
     bad_payment_type: "Tuntematon maksutapa.",
     bad_payment_value: "Virheelliset tiedot — tarkista numero tai IBAN.",
+    too_many_methods: "Enintään 8 maksutapaa henkilöä kohden.",
     rate_limited:
       "Tollysplitejä luodaan poikkeuksellisen paljon juuri nyt — odota hetki ja yritä uudelleen.",
     need_two_participants: "Lisää vähintään kaksi osallistujaa.",

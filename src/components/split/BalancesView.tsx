@@ -10,7 +10,7 @@ import {
   shareOfTotal,
   totalSpent,
 } from "@/lib/money";
-import { saveEntryAction, setPaymentMethodAction } from "@/app/k/[key]/actions";
+import { saveEntryAction, setPaymentMethodsAction } from "@/app/k/[key]/actions";
 import {
   PAYMENT_META,
   PAYMENT_TYPES,
@@ -69,7 +69,8 @@ export function BalancesView({
   const [payError, setPayError] = useState<string | null>(null);
 
   const me = meId ? participants.find((p) => p.id === meId) : null;
-  const showPaymentPrompt = me && !me.payment_value && (bal.get(me.id) ?? 0) > 0;
+  const showPaymentPrompt =
+    me && me.payment_methods.length === 0 && (bal.get(me.id) ?? 0) > 0;
 
   function saveMyPayment() {
     if (!me) return;
@@ -82,7 +83,9 @@ export function BalancesView({
     }
     setPayError(null);
     startTransition(async () => {
-      const result = await setPaymentMethodAction(splitKey, me.id, payType, normalized);
+      const result = await setPaymentMethodsAction(splitKey, me.id, [
+        { type: payType, value: normalized },
+      ]);
       if (!result.ok) setPayError(te(result.error));
     });
   }
@@ -164,7 +167,10 @@ export function BalancesView({
               const from = byId.get(s.from);
               const to = byId.get(s.to);
               const id = `${s.from}-${s.to}`;
-              const canPay = to?.payment_type && to?.payment_value;
+              const methods = to?.payment_methods ?? [];
+              const canPay = methods.length > 0;
+              const onlySwish =
+                methods.length === 1 && methods[0].type === "swish";
               return (
                 <div
                   key={id}
@@ -182,12 +188,14 @@ export function BalancesView({
                     {canPay && (
                       <button
                         onClick={() => {
-                          track("payment_dialog_opened", { method: to!.payment_type! });
+                          track("payment_dialog_opened", {
+                            method: onlySwish ? "swish" : "multi",
+                            count: methods.length,
+                          });
                           setPayment({
                             fromName: from?.name ?? "?",
                             toName: to!.name,
-                            toType: to!.payment_type!,
-                            toValue: to!.payment_value!,
+                            methods,
                             amountCents: s.amount_cents,
                             currency,
                             message: splitTitle,
@@ -196,7 +204,7 @@ export function BalancesView({
                         }}
                         className="rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
                       >
-                        {to!.payment_type === "swish" ? dict.bal.swisha : dict.bal.pay}
+                        {onlySwish ? dict.bal.swisha : dict.bal.pay}
                       </button>
                     )}
                     <button

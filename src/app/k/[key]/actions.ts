@@ -19,6 +19,7 @@ const ERROR_CODES = [
   "bad_recipient",
   "bad_payment_type",
   "bad_payment_value",
+  "too_many_methods",
 ];
 
 function errorCode(message: string | undefined): string {
@@ -64,7 +65,9 @@ export async function saveEntryAction(
     const { data } = await supabase.rpc("split_data", { p_key: key });
     const split = data as (SplitData & { not_found?: boolean }) | null;
     if (split && !split.not_found && split.participants) {
-      const hasMethods = split.participants.some((p) => p.payment_value);
+      const hasMethods = split.participants.some(
+        (p) => p.payment_methods?.length > 0
+      );
       const allSquare = [...balances(split.participants, split.entries).values()].every(
         (v) => v === 0
       );
@@ -117,17 +120,15 @@ export async function deleteParticipantAction(
   return rpc(key, "delete_participant", { p_key: key, p_id: participantId });
 }
 
-export async function setPaymentMethodAction(
+export async function setPaymentMethodsAction(
   key: string,
   participantId: string,
-  type: string | null,
-  value: string | null
+  methods: { type: string; value: string }[]
 ): Promise<ActionResult> {
-  return rpc(key, "set_payment_method", {
+  return rpc(key, "set_payment_methods", {
     p_key: key,
     p_id: participantId,
-    p_type: type,
-    p_value: value,
+    p_methods: methods,
   });
 }
 

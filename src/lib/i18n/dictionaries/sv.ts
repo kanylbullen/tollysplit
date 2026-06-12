@@ -202,6 +202,7 @@ const sv = {
     add: "Lägg till",
     cantDeleteHint: "Deltagare med bokförda poster kan inte tas bort.",
     payAdd: "+ Lägg till betalsätt",
+    payAddAnother: "+ Lägg till fler",
     payShow: "{method}: {value} · ändra",
     removeSuffix: " (tomt = ta bort)",
     appearance: "Utseende",
@@ -241,6 +242,7 @@ const sv = {
     bad_recipient: "Välj en annan mottagare än avsändaren.",
     bad_payment_type: "Okänt betalsätt.",
     bad_payment_value: "Ogiltig uppgift — kontrollera numret eller IBAN.",
+    too_many_methods: "Max 8 betalsätt per person.",
     rate_limited:
       "Det skapas ovanligt många tollysplits just nu — vänta en stund och prova igen.",
     need_two_participants: "Lägg till minst två deltagare.",

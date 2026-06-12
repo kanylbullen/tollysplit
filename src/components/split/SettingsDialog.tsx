@@ -10,7 +10,7 @@ import {
   deleteParticipantAction,
   renameParticipantAction,
   setAutoPurgeAction,
-  setPaymentMethodAction,
+  setPaymentMethodsAction,
   updateSplitAction,
 } from "@/app/k/[key]/actions";
 import {
@@ -74,6 +74,28 @@ export function SettingsDialog({
       const result = await action();
       if (!result.ok) setError(te(result.error ?? "unknown"));
     });
+  }
+
+  function addMethod(p: Participant) {
+    const normalized = normalizePayment(payType, payText);
+    if (!normalized) {
+      setError(te("bad_payment_value"));
+      return;
+    }
+    const methods = [
+      ...p.payment_methods.map((m) => ({ type: m.type as string, value: m.value })),
+      { type: payType as string, value: normalized },
+    ];
+    run(() => setPaymentMethodsAction(split.key, p.id, methods));
+    setPayEditing(null);
+    setPayText("");
+  }
+
+  function removeMethod(p: Participant, index: number) {
+    const methods = p.payment_methods
+      .filter((_, i) => i !== index)
+      .map((m) => ({ type: m.type as string, value: m.value }));
+    run(() => setPaymentMethodsAction(split.key, p.id, methods));
   }
 
   const dirty = title.trim() !== split.title || currency !== split.currency;
@@ -184,76 +206,94 @@ export function SettingsDialog({
                   </>
                 )}
               </div>
-              {payEditing === p.id ? (
-                <form
-                  className="mt-1.5 flex gap-2"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (payText.trim() === "") {
-                      run(() => setPaymentMethodAction(split.key, p.id, null, null));
-                      setPayEditing(null);
-                      return;
-                    }
-                    const normalized = normalizePayment(payType, payText);
-                    if (!normalized) {
-                      setError(te("bad_payment_value"));
-                      return;
-                    }
-                    run(() => setPaymentMethodAction(split.key, p.id, payType, normalized));
-                    setPayEditing(null);
-                  }}
-                >
-                  <select
-                    value={payType}
-                    onChange={(e) => setPayType(e.target.value as PaymentType)}
-                    className="rounded-lg border border-stone-300 bg-surface px-1.5 py-1.5 text-sm outline-none focus:border-primary"
-                  >
-                    {PAYMENT_TYPES.map((t) => (
-                      <option key={t} value={t}>
-                        {PAYMENT_META[t].label}
-                      </option>
+              <div className="mt-1.5 space-y-1.5">
+                {p.payment_methods.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {p.payment_methods.map((m, idx) => (
+                      <span
+                        key={`${m.type}-${idx}`}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-stone-100 px-2 py-1 text-xs"
+                      >
+                        <span className="font-semibold">{PAYMENT_META[m.type].label}</span>
+                        <span className="text-stone-500">
+                          {formatPayment(m.type, m.value)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeMethod(p, idx)}
+                          disabled={pending}
+                          aria-label={dict.common.delete}
+                          className="-mr-0.5 ml-0.5 text-base leading-none text-stone-400 hover:text-negative"
+                        >
+                          ×
+                        </button>
+                      </span>
                     ))}
-                  </select>
-                  <input
-                    inputMode={PAYMENT_META[payType].kind === "phone" ? "tel" : "text"}
-                    placeholder={`${PAYMENT_META[payType].placeholder}${dict.set.removeSuffix}`}
-                    value={payText}
-                    onChange={(e) => setPayText(e.target.value)}
-                    autoFocus
-                    className="min-w-0 flex-1 rounded-lg border border-stone-300 px-2 py-1.5 text-sm outline-none focus:border-primary"
-                  />
-                  <button
-                    type="submit"
-                    disabled={pending}
-                    className="text-sm font-semibold text-primary hover:text-primary-dark"
+                  </div>
+                )}
+
+                {payEditing === p.id ? (
+                  <form
+                    className="flex gap-2"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      addMethod(p);
+                    }}
                   >
-                    {dict.common.save}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPayEditing(null)}
-                    className="text-sm text-stone-400 hover:text-ink"
-                  >
-                    {dict.common.cancel}
-                  </button>
-                </form>
-              ) : (
-                <button
-                  onClick={() => {
-                    setPayEditing(p.id);
-                    setPayType(p.payment_type ?? "swish");
-                    setPayText(p.payment_value ?? "");
-                  }}
-                  className="mt-0.5 text-xs text-stone-400 hover:text-primary-dark"
-                >
-                  {p.payment_type && p.payment_value
-                    ? t(dict.set.payShow, {
-                        method: PAYMENT_META[p.payment_type].label,
-                        value: formatPayment(p.payment_type, p.payment_value),
-                      })
-                    : dict.set.payAdd}
-                </button>
-              )}
+                    <select
+                      value={payType}
+                      onChange={(e) => setPayType(e.target.value as PaymentType)}
+                      className="rounded-lg border border-stone-300 bg-surface px-1.5 py-1.5 text-sm outline-none focus:border-primary"
+                    >
+                      {PAYMENT_TYPES.map((pt) => (
+                        <option key={pt} value={pt}>
+                          {PAYMENT_META[pt].label}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      inputMode={PAYMENT_META[payType].kind === "phone" ? "tel" : "text"}
+                      placeholder={PAYMENT_META[payType].placeholder}
+                      value={payText}
+                      onChange={(e) => setPayText(e.target.value)}
+                      autoFocus
+                      className="min-w-0 flex-1 rounded-lg border border-stone-300 px-2 py-1.5 text-sm outline-none focus:border-primary"
+                    />
+                    <button
+                      type="submit"
+                      disabled={pending}
+                      className="text-sm font-semibold text-primary hover:text-primary-dark"
+                    >
+                      {dict.common.save}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPayEditing(null);
+                        setPayText("");
+                      }}
+                      className="text-sm text-stone-400 hover:text-ink"
+                    >
+                      {dict.common.cancel}
+                    </button>
+                  </form>
+                ) : (
+                  p.payment_methods.length < 8 && (
+                    <button
+                      onClick={() => {
+                        setPayEditing(p.id);
+                        setPayType("swish");
+                        setPayText("");
+                      }}
+                      className="text-xs text-stone-400 hover:text-primary-dark"
+                    >
+                      {p.payment_methods.length > 0
+                        ? dict.set.payAddAnother
+                        : dict.set.payAdd}
+                    </button>
+                  )
+                )}
+              </div>
               </div>
             ))}
           </div>

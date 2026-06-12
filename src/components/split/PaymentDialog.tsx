@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { track } from "@vercel/analytics";
 import { Dialog } from "@/components/ui";
 import { formatMoney } from "@/lib/money";
@@ -13,14 +13,14 @@ import {
   revolutLink,
   swishAppLink,
 } from "@/lib/payment";
+import type { PaymentMethod } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/client";
 import { LOCALE_INTL } from "@/lib/i18n/config";
 
 export type Payment = {
   fromName: string;
   toName: string;
-  toType: PaymentType;
-  toValue: string;
+  methods: PaymentMethod[];
   amountCents: number;
   currency: string;
   message: string;
@@ -37,17 +37,26 @@ export function PaymentDialog({
 }) {
   const { dict, t, locale } = useI18n();
   const [copied, setCopied] = useState(false);
-  if (!payment) return null;
+  const [selected, setSelected] = useState(0);
 
-  const rich = hasRichLink(payment.toType);
-  const appLink = hasAppLink(payment.toType);
-  const pretty = formatPayment(payment.toType, payment.toValue);
-  const label = PAYMENT_META[payment.toType].label;
+  // Reset the chosen method whenever a new payment is opened.
+  useEffect(() => {
+    if (open) setSelected(0);
+  }, [open, payment]);
+
+  if (!payment || payment.methods.length === 0) return null;
+
+  const method = payment.methods[Math.min(selected, payment.methods.length - 1)];
+  const type: PaymentType = method.type;
+  const rich = hasRichLink(type);
+  const appLink = hasAppLink(type);
+  const pretty = formatPayment(type, method.value);
+  const label = PAYMENT_META[type].label;
   const amount = formatMoney(payment.amountCents, payment.currency, LOCALE_INTL[locale]);
-  const qrSrc = `/api/swish-qr?number=${payment.toValue}&amount=${payment.amountCents}&msg=${encodeURIComponent(payment.message)}`;
+  const qrSrc = `/api/swish-qr?number=${method.value}&amount=${payment.amountCents}&msg=${encodeURIComponent(payment.message)}`;
 
   async function copy() {
-    await navigator.clipboard.writeText(payment!.toValue);
+    await navigator.clipboard.writeText(method.value);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2000);
   }
@@ -63,6 +72,27 @@ export function PaymentDialog({
           })}
         </p>
         <p className="text-3xl font-black tracking-tight">{amount}</p>
+
+        {payment.methods.length > 1 && (
+          <div className="flex w-full flex-wrap justify-center gap-1.5">
+            {payment.methods.map((m, i) => (
+              <button
+                key={`${m.type}-${i}`}
+                onClick={() => {
+                  setSelected(i);
+                  setCopied(false);
+                }}
+                className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+                  i === selected
+                    ? "bg-primary text-white"
+                    : "border border-stone-300 text-stone-600 hover:border-primary"
+                }`}
+              >
+                {PAYMENT_META[m.type].label}
+              </button>
+            ))}
+          </div>
+        )}
 
         <p className="rounded-xl bg-amber-50 px-3.5 py-2.5 text-left text-xs text-amber-800">
           ⚠️ {dict.pay.verifyWarning}
@@ -90,7 +120,7 @@ export function PaymentDialog({
           <>
             <p className="text-sm text-stone-500">{dict.pay.swishScan}</p>
             <a
-              href={swishAppLink(payment.toValue, payment.amountCents, payment.message)}
+              href={swishAppLink(method.value, payment.amountCents, payment.message)}
               onClick={() => track("swish_app_opened")}
               className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-white shadow-md transition-colors hover:bg-primary-dark"
             >
@@ -101,7 +131,7 @@ export function PaymentDialog({
           <>
             <p className="text-sm text-stone-500">{dict.pay.revolutOpen}</p>
             <a
-              href={revolutLink(payment.toValue)}
+              href={revolutLink(method.value)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => track("revolut_app_opened")}

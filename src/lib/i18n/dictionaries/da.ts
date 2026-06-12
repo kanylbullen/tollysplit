@@ -202,6 +202,7 @@ const da: Dict = {
     add: "Tilføj",
     cantDeleteHint: "Deltagere med registrerede poster kan ikke fjernes.",
     payAdd: "+ Tilføj betalingsmetode",
+    payAddAnother: "+ Tilføj flere",
     payShow: "{method}: {value} · redigér",
     removeSuffix: " (tom = fjern)",
     appearance: "Udseende",
@@ -241,6 +242,7 @@ const da: Dict = {
     bad_recipient: "Vælg en anden modtager end afsenderen.",
     bad_payment_type: "Ukendt betalingsmetode.",
     bad_payment_value: "Ugyldige oplysninger — tjek nummeret eller IBAN.",
+    too_many_methods: "Maks 8 betalingsmetoder pr. person.",
     rate_limited:
       "Usædvanligt mange tollysplits oprettes lige nu — vent lidt og prøv igen.",
     need_two_participants: "Tilføj mindst to deltagere.",

@@ -1,11 +1,15 @@
 import type { PaymentType } from "./payment";
 
+export type PaymentMethod = {
+  type: PaymentType;
+  value: string;
+};
+
 export type Participant = {
   id: string;
   name: string;
   position: number;
-  payment_type: PaymentType | null;
-  payment_value: string | null;
+  payment_methods: PaymentMethod[];
 };
 
 export type Share = {
