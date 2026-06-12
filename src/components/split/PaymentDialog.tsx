@@ -350,10 +350,12 @@ export function PaymentDialog({
           evm.status === "ready" && (
             <>
               <p className="text-sm text-stone-500">{dict.pay.evmNote}</p>
-              {/* No chainId in the link on purpose — it prefills the
-                  recipient but leaves the network choice to the payer. */}
+              {/* metamask.app.link, not link.metamask.io — the latter 404s
+                  in-app; this is the domain MetaMask's own deeplink
+                  generator uses. No chainId on purpose: recipient prefilled,
+                  network choice stays with the payer. */}
               <a
-                href={`https://link.metamask.io/send/${evm.address}`}
+                href={`https://metamask.app.link/send/${evm.address}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => track("metamask_opened")}
