@@ -162,7 +162,12 @@ const en: Dict = {
     lnError:
       "Couldn't fetch a Lightning invoice right now — copy the address and pay manually from your wallet.",
     lnCopyInvoice: "Lightning invoice",
-    lnIrreversible: "Note: Lightning payments cannot be reversed.",
+    cryptoIrreversible: "Note: crypto payments cannot be reversed.",
+    evmLoading: "Resolving address…",
+    evmError:
+      "Couldn't resolve the address right now — copy it manually and double-check with the recipient.",
+    evmNote:
+      "Scan the QR code or copy the address. Agree with the recipient on network (e.g. Base, Arbitrum, mainnet) and token (e.g. USDC) before sending.",
     changedWarning:
       "The recipient's payment details were changed on {date} and differ from what was first entered. Confirm with the recipient through another channel before paying.",
     openOther:

@@ -35,6 +35,12 @@ type LnState =
   | { status: "ready"; sats: number; pr: string }
   | { status: "error" };
 
+type EvmState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "ready"; address: string; usd: number | null }
+  | { status: "error" };
+
 export function PaymentDialog({
   open,
   onClose,
@@ -48,6 +54,7 @@ export function PaymentDialog({
   const [copied, setCopied] = useState(false);
   const [selected, setSelected] = useState(0);
   const [ln, setLn] = useState<LnState>({ status: "idle" });
+  const [evm, setEvm] = useState<EvmState>({ status: "idle" });
 
   // Reset the chosen method whenever a new payment is opened.
   useEffect(() => {
@@ -94,12 +101,55 @@ export function PaymentDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, payment, method?.type, method?.value]);
 
+  // EVM: resolve ENS to the actual address (the QR encodes the address) and
+  // fetch the debt ≈ in USD — token/chain is the payer's choice, and the
+  // stablecoins people actually use are dollar-denominated.
+  useEffect(() => {
+    if (!open || !payment || method?.type !== "evm") {
+      setEvm({ status: "idle" });
+      return;
+    }
+    let cancelled = false;
+    setEvm({ status: "loading" });
+    (async () => {
+      try {
+        let address = method.value;
+        if (!address.startsWith("0x")) {
+          const res = await fetch(
+            `/api/ens?name=${encodeURIComponent(address)}`
+          ).then((r) => r.json());
+          if (typeof res.address !== "string") throw new Error();
+          address = res.address;
+        }
+        let usd: number | null = null;
+        if (payment.currency === "USD") {
+          usd = payment.amountCents / 100;
+        } else {
+          const fx = await fetch(`/api/fx?from=${payment.currency}&to=USD`)
+            .then((r) => r.json())
+            .catch(() => null);
+          if (fx && typeof fx.rate === "number") {
+            usd = (payment.amountCents / 100) * fx.rate;
+          }
+        }
+        if (!cancelled) setEvm({ status: "ready", address, usd });
+      } catch {
+        if (!cancelled) setEvm({ status: "error" });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, payment, method?.type, method?.value]);
+
   if (!payment || !method) return null;
 
   const type: PaymentType = method.type;
   const rich = hasRichLink(type);
   const appLink = hasAppLink(type);
   const isLightning = type === "lightning";
+  const isEvm = type === "evm";
   const pretty = formatPayment(type, method.value);
   const label = PAYMENT_META[type].label;
   const amount = formatMoney(payment.amountCents, payment.currency, LOCALE_INTL[locale]);
@@ -108,7 +158,11 @@ export function PaymentDialog({
   async function copy() {
     if (!method) return;
     const text =
-      isLightning && ln.status === "ready" ? ln.pr : method.value;
+      isLightning && ln.status === "ready"
+        ? ln.pr
+        : isEvm && evm.status === "ready"
+          ? evm.address
+          : method.value;
     await navigator.clipboard.writeText(text);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2000);
@@ -136,6 +190,26 @@ export function PaymentDialog({
           {isLightning && (
             <p className="mt-1 break-all font-mono text-sm font-semibold">
               ⚡ {method.value}
+            </p>
+          )}
+          {isEvm && evm.status === "ready" && evm.usd !== null && payment.currency !== "USD" && (
+            <p className="text-sm font-semibold text-stone-500">
+              ≈ {new Intl.NumberFormat(LOCALE_INTL[locale], {
+                maximumFractionDigits: 2,
+              }).format(evm.usd)}{" "}
+              USD
+            </p>
+          )}
+          {isEvm && (
+            <p className="mt-1 break-all font-mono text-sm font-semibold">
+              Ξ {method.value}
+            </p>
+          )}
+          {/* ENS names are re-pointable — always surface the resolved 0x
+              address; it's also what the QR encodes. */}
+          {isEvm && evm.status === "ready" && !method.value.startsWith("0x") && (
+            <p className="break-all font-mono text-xs text-stone-500">
+              {evm.address}
             </p>
           )}
         </div>
@@ -175,7 +249,7 @@ export function PaymentDialog({
         )}
         <p className="rounded-xl bg-amber-50 px-3.5 py-2.5 text-left text-xs text-amber-800">
           ⚠️ {dict.pay.verifyWarning}
-          {isLightning && ` ${dict.pay.lnIrreversible}`}
+          {(isLightning || isEvm) && ` ${dict.pay.cryptoIrreversible}`}
         </p>
 
         {rich && open && (
@@ -206,6 +280,22 @@ export function PaymentDialog({
         )}
         {isLightning && ln.status === "error" && (
           <p className="text-sm text-negative">{dict.pay.lnError}</p>
+        )}
+
+        {isEvm && evm.status === "ready" && (
+          <div
+            className="h-[220px] w-[220px] rounded-xl border border-stone-200 bg-white p-2 [&>svg]:h-full [&>svg]:w-full"
+            aria-label={`Adress-QR till ${payment.toName}`}
+            dangerouslySetInnerHTML={{
+              __html: renderSVG(evm.address, { ecc: "M", border: 1 }),
+            }}
+          />
+        )}
+        {isEvm && evm.status === "loading" && (
+          <p className="text-sm text-stone-500">{dict.pay.evmLoading}</p>
+        )}
+        {isEvm && evm.status === "error" && (
+          <p className="text-sm text-negative">{dict.pay.evmError}</p>
         )}
 
         <button
@@ -255,6 +345,10 @@ export function PaymentDialog({
                 {dict.pay.openLightning}
               </a>
             </>
+          )
+        ) : isEvm ? (
+          evm.status === "ready" && (
+            <p className="text-sm text-stone-500">{dict.pay.evmNote}</p>
           )
         ) : (
           <p className="text-sm text-stone-500">

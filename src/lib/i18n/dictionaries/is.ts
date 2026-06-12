@@ -162,7 +162,12 @@ const is: Dict = {
     lnError:
       "Ekki tókst að sækja Lightning-reikning núna — afritaðu netfangið og greiddu handvirkt úr veskinu þínu.",
     lnCopyInvoice: "Lightning-reikningur",
-    lnIrreversible: "Athugið: Lightning-greiðslur er ekki hægt að afturkalla.",
+    cryptoIrreversible: "Athugið: rafmyntargreiðslur er ekki hægt að afturkalla.",
+    evmLoading: "Sæki vistfang…",
+    evmError:
+      "Ekki tókst að fletta upp vistfanginu núna — afritaðu það handvirkt og staðfestu við viðtakanda.",
+    evmNote:
+      "Skannaðu QR-kóðann eða afritaðu vistfangið. Komdu þér saman við viðtakanda um net (t.d. Base, Arbitrum, mainnet) og token (t.d. USDC) áður en þú sendir.",
     changedWarning:
       "Greiðsluupplýsingum viðtakanda var breytt {date} og þær eru aðrar en þær sem fyrst voru skráðar. Staðfestu við viðtakanda í gegnum aðra leið áður en þú greiðir.",
     openOther:

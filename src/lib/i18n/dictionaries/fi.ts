@@ -162,7 +162,12 @@ const fi: Dict = {
     lnError:
       "Lightning-laskua ei saatu juuri nyt — kopioi osoite ja maksa manuaalisesti lompakostasi.",
     lnCopyInvoice: "Lightning-lasku",
-    lnIrreversible: "Huom: Lightning-maksuja ei voi peruuttaa.",
+    cryptoIrreversible: "Huom: kryptomaksuja ei voi peruuttaa.",
+    evmLoading: "Haetaan osoitetta…",
+    evmError:
+      "Osoitetta ei voitu hakea juuri nyt — kopioi se manuaalisesti ja varmista saajalta.",
+    evmNote:
+      "Skannaa QR-koodi tai kopioi osoite. Sopikaa saajan kanssa verkosta (esim. Base, Arbitrum, mainnet) ja tokenista (esim. USDC) ennen lähettämistä.",
     changedWarning:
       "Saajan maksutietoja muutettiin {date}, ja ne eroavat alun perin syötetyistä. Varmista saajalta toista kanavaa pitkin ennen maksamista.",
     openOther:
