@@ -162,7 +162,12 @@ const da: Dict = {
     lnError:
       "Kunne ikke hente en Lightning-faktura lige nu — kopiér adressen og betal manuelt fra din wallet.",
     lnCopyInvoice: "Lightning-faktura",
-    lnIrreversible: "Bemærk: Lightning-betalinger kan ikke tilbagekaldes.",
+    cryptoIrreversible: "Bemærk: kryptobetalinger kan ikke tilbagekaldes.",
+    evmLoading: "Henter adresse…",
+    evmError:
+      "Kunne ikke slå adressen op lige nu — kopiér den manuelt og dobbelttjek med modtageren.",
+    evmNote:
+      "Scan QR-koden med din wallets scanner (på startsiden — send-visningen mangler ofte en scanner) eller kopiér adressen. Aftal med modtageren, hvilket netværk (f.eks. Base, Arbitrum, mainnet) og token (f.eks. USDC) der bruges, før du sender.",
     changedWarning:
       "Modtagerens betalingsoplysninger blev ændret {date} og afviger fra det, der først blev indtastet. Bekræft med modtageren via en anden kanal, før du betaler.",
     openOther:

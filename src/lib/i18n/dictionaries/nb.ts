@@ -162,7 +162,12 @@ const nb: Dict = {
     lnError:
       "Kunne ikke hente en Lightning-faktura akkurat nå — kopier adressen og betal manuelt fra lommeboken din.",
     lnCopyInvoice: "Lightning-faktura",
-    lnIrreversible: "Obs: Lightning-betalinger kan ikke tilbakekalles.",
+    cryptoIrreversible: "Obs: kryptobetalinger kan ikke tilbakekalles.",
+    evmLoading: "Henter adresse…",
+    evmError:
+      "Kunne ikke slå opp adressen akkurat nå — kopier den manuelt og dobbeltsjekk med mottakeren.",
+    evmNote:
+      "Skann QR-koden med lommebokens skanner (på startsiden — send-visningen mangler ofte skanner) eller kopier adressen. Bli enige med mottakeren om nettverk (f.eks. Base, Arbitrum, mainnet) og token (f.eks. USDC) før du sender.",
     changedWarning:
       "Mottakerens betalingsopplysninger ble endret {date} og avviker fra det som først ble lagt inn. Bekreft med mottakeren via en annen kanal før du betaler.",
     openOther:

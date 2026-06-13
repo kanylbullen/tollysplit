@@ -162,7 +162,12 @@ const sv = {
     lnError:
       "Kunde inte hämta en Lightning-faktura just nu — kopiera adressen och betala manuellt från din plånbok.",
     lnCopyInvoice: "Lightning-faktura",
-    lnIrreversible: "Obs: Lightning-betalningar går inte att återkalla.",
+    cryptoIrreversible: "Obs: kryptobetalningar går inte att återkalla.",
+    evmLoading: "Hämtar adress…",
+    evmError:
+      "Kunde inte slå upp adressen just nu — kopiera den manuellt och dubbelkolla med mottagaren.",
+    evmNote:
+      "Scanna QR-koden med plånbokens scanner (på startsidan — send-vyn saknar ofta scanner) eller kopiera adressen. Kom överens med mottagaren om nätverk (t.ex. Base, Arbitrum, mainnet) och token (t.ex. USDC) innan du skickar.",
     changedWarning:
       "Mottagarens betaluppgifter ändrades {date} och skiljer sig från de som först lades in. Bekräfta med mottagaren via en annan kanal innan du betalar.",
     openOther:

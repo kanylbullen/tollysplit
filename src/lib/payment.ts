@@ -4,13 +4,14 @@ export type PaymentType =
   | "mobilepay"
   | "iban"
   | "revolut"
-  | "lightning";
+  | "lightning"
+  | "evm";
 
 type PaymentMeta = {
   label: string;
   /** Country hint shown next to the label. */
   hint: string;
-  kind: "phone" | "iban" | "revtag" | "lnaddress";
+  kind: "phone" | "iban" | "revtag" | "lnaddress" | "evmaddress";
   placeholder: string;
 };
 
@@ -20,6 +21,7 @@ export const PAYMENT_META: Record<PaymentType, PaymentMeta> = {
   mobilepay: { label: "MobilePay", hint: "DK/FI", kind: "phone", placeholder: "12 34 56 78" },
   revolut: { label: "Revolut", hint: "revtag", kind: "revtag", placeholder: "@john" },
   lightning: { label: "Lightning", hint: "bitcoin", kind: "lnaddress", placeholder: "satoshi@strike.me" },
+  evm: { label: "Ethereum", hint: "EVM", kind: "evmaddress", placeholder: "0x… / namn.eth" },
   iban: { label: "IBAN", hint: "", kind: "iban", placeholder: "SE35 5000 0000 0549 1000 0003" },
 };
 
@@ -44,6 +46,15 @@ export function normalizePayment(type: PaymentType, input: string): string | nul
       ? clean
       : null;
   }
+  if (PAYMENT_META[type].kind === "evmaddress") {
+    // 0x address (stored lowercase — wallets accept non-checksummed) or ENS.
+    const clean = input.trim().toLowerCase();
+    if (/^0x[0-9a-f]{40}$/.test(clean)) return clean;
+    return /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*\.eth$/.test(clean) &&
+      clean.length <= 255
+      ? clean
+      : null;
+  }
   // phone-type (swish/vipps/mobilepay)
   const clean = input.replace(/[\s\-()./]/g, "");
   return /^\+?[0-9]{6,15}$/.test(clean) ? clean : null;
@@ -56,6 +67,10 @@ export function formatPayment(type: PaymentType, value: string): string {
   }
   if (type === "revolut") {
     return `@${value}`;
+  }
+  // Long 0x addresses get the usual middle-ellipsis; ENS names shown as-is.
+  if (type === "evm" && value.startsWith("0x")) {
+    return `${value.slice(0, 6)}…${value.slice(-4)}`;
   }
   // Swedish Swish numbers get the familiar grouping; others shown as-is.
   if (type === "swish" && /^07\d{8}$/.test(value)) {
