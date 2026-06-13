@@ -31,6 +31,7 @@ export function EntryDialog({
   entry,
   initialKind,
   meId,
+  lockPayer = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -40,6 +41,8 @@ export function EntryDialog({
   entry: Entry | null;
   initialKind: EntryKind;
   meId: string | null;
+  /** Secure splits: the payer is forced to you and can't be changed. */
+  lockPayer?: boolean;
 }) {
   const { dict, t, te, locale } = useI18n();
   const money = (cents: number) => formatMoney(cents, currency, LOCALE_INTL[locale]);
@@ -366,6 +369,7 @@ export function EntryDialog({
               id="entry-payer"
               value={paidBy}
               onChange={(e) => setPaidBy(e.target.value)}
+              disabled={lockPayer}
             >
               {participants.map((p) => (
                 <option key={p.id} value={p.id}>

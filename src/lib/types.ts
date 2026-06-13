@@ -12,7 +12,16 @@ export type Participant = {
   payment_methods: PaymentMethod[];
   /** Set if the payment details ever diverged from what was first entered. */
   payment_changed_at: string | null;
+  /** Secure splits: whether this slot is bound to a user, and to me. */
+  claimed: boolean;
+  is_me: boolean;
+  /** Secure invite-mode: this slot has a reserved email. */
+  has_invite: boolean;
 };
+
+export type AccessMode = "all" | "payers";
+export type Visibility = "link" | "members";
+export type ClaimMode = "self" | "invite";
 
 export type Share = {
   participant_id: string;
@@ -47,6 +56,15 @@ export type Split = {
   auto_purge: boolean;
   /** When true, payment info is NOT wiped once everyone is square. */
   keep_payment_methods: boolean;
+  /** Secure split: identity-based access on top of the link capability. */
+  secure: boolean;
+  access_mode: AccessMode;
+  visibility: Visibility;
+  claim_mode: ClaimMode;
+  /** True when the current viewer created this split. */
+  is_creator: boolean;
+  /** The viewer's claimed participant id, or null. */
+  me_participant: string | null;
 };
 
 export type SplitData = {

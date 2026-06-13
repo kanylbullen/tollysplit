@@ -14,10 +14,21 @@ export async function createSplitAction(
 ): Promise<CreateState> {
   const title = String(formData.get("title") ?? "").trim();
   const currency = String(formData.get("currency") ?? "SEK");
-  const names = formData
-    .getAll("name")
-    .map((n) => String(n).trim())
-    .filter((n) => n.length > 0);
+  // Pair names with their (optional, invite-mode) emails by row index before
+  // dropping empty rows, so the alignment survives into create_split.
+  const rawNames = formData.getAll("name").map((n) => String(n).trim());
+  const rawEmails = formData.getAll("email").map((e) => String(e).trim());
+  const rows = rawNames
+    .map((name, i) => ({ name, email: rawEmails[i] ?? "" }))
+    .filter((r) => r.name.length > 0);
+  const names = rows.map((r) => r.name);
+
+  const secure = formData.get("secure") === "on";
+  const accessMode = String(formData.get("access_mode") ?? "payers");
+  const visibility = String(formData.get("visibility") ?? "link");
+  const claimMode = String(formData.get("claim_mode") ?? "self");
+  const emails =
+    secure && claimMode === "invite" ? rows.map((r) => r.email) : null;
 
   // Errors are returned as codes; the client translates them via dict.errors.
   if (!title) return { error: "title_required" };
@@ -37,15 +48,30 @@ export async function createSplitAction(
     : null;
 
   const supabase = await createClient();
+
+  // Secure splits require a logged-in creator.
+  if (secure) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "login_required" };
+  }
+
   const { data: key, error } = await supabase.rpc("create_split", {
     p_title: title,
     p_currency: currency,
     p_names: names,
     p_ip_hash: ipHash,
+    p_secure: secure,
+    p_access_mode: accessMode,
+    p_visibility: visibility,
+    p_claim_mode: claimMode,
+    p_emails: emails,
   });
 
   if (error || !key) {
     if (error?.message.includes("rate_limited")) return { error: "rate_limited" };
+    if (error?.message.includes("login_required")) return { error: "login_required" };
     return { error: "unknown" };
   }
 

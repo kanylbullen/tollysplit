@@ -20,6 +20,17 @@ const ERROR_CODES = [
   "bad_payment_type",
   "bad_payment_value",
   "too_many_methods",
+  // Secure splits
+  "login_required",
+  "not_your_participant",
+  "not_your_entry",
+  "not_a_member",
+  "awaiting_claims",
+  "creator_only",
+  "already_claimed",
+  "slot_taken",
+  "not_invited",
+  "not_secure",
 ];
 
 function errorCode(message: string | undefined): string {
@@ -36,6 +47,17 @@ async function rpc(
   if (error) return { ok: false, error: errorCode(error.message) };
   revalidatePath(`/k/${key}`);
   return { ok: true };
+}
+
+export async function claimParticipantAction(
+  key: string,
+  participantId: string
+): Promise<ActionResult> {
+  return rpc(key, "claim_participant", { p_key: key, p_id: participantId });
+}
+
+export async function unclaimParticipantAction(key: string): Promise<ActionResult> {
+  return rpc(key, "unclaim_participant", { p_key: key });
 }
 
 export type EntryInput = {
