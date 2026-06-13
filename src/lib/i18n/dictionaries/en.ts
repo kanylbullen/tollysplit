@@ -158,6 +158,13 @@ const en: Dict = {
     perPerson: "Balance per person",
     share: "share {amount}",
     totalSpent: "Total spent",
+    statusHeading: "Who's in",
+    statusReady: "Done",
+    statusSeen: "Seen",
+    statusUnseen: "Not seen yet",
+    readyMark: "I'm done — no more expenses",
+    readyUndo: "Undo — I have more expenses",
+    notAllSeenHint: "Not everyone has seen the split yet.",
   },
   settle: {
     title: "{from} pays {to}",
@@ -210,6 +217,8 @@ const en: Dict = {
       "Check the recipient's name in your payment app before paying — anyone with the link can change the payment details here, so pay at your own risk.",
     reminder:
       "Don't forget to tap “Mark as paid” once the payment is made — we don't get a confirmation automatically.",
+    earlyWarning:
+      "Not everyone has seen the split yet — if someone adds more expenses you might have to pay again later.",
   },
   entryD: {
     editTransfer: "Edit transfer",

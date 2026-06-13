@@ -159,6 +159,13 @@ const sv = {
     perPerson: "Saldo per person",
     share: "andel {amount}",
     totalSpent: "Totalt spenderat",
+    statusHeading: "Vilka är med",
+    statusReady: "Klar",
+    statusSeen: "Sett",
+    statusUnseen: "Inte sett ännu",
+    readyMark: "Jag är klar — inga fler utlägg",
+    readyUndo: "Ångra — jag har fler utlägg",
+    notAllSeenHint: "Alla har inte sett spliten ännu.",
   },
   settle: {
     title: "{from} betalar {to}",
@@ -211,6 +218,8 @@ const sv = {
       "Kontrollera mottagarens namn i din betalapp innan du betalar — vem som helst med länken kan ändra betaluppgifterna här, så betala på eget ansvar.",
     reminder:
       "Glöm inte att trycka ”Markera betald” när betalningen är gjord — vi får ingen bekräftelse automatiskt.",
+    earlyWarning:
+      "Alla har inte sett spliten än — om någon lägger in fler utlägg kan du behöva betala igen senare.",
   },
   entryD: {
     editTransfer: "Redigera överföring",

@@ -158,6 +158,13 @@ const nb: Dict = {
     perPerson: "Saldo per person",
     share: "andel {amount}",
     totalSpent: "Totalt brukt",
+    statusHeading: "Hvem er med",
+    statusReady: "Ferdig",
+    statusSeen: "Sett",
+    statusUnseen: "Ikke sett ennå",
+    readyMark: "Jeg er ferdig — ingen flere utgifter",
+    readyUndo: "Angre — jeg har flere utgifter",
+    notAllSeenHint: "Ikke alle har sett splitten ennå.",
   },
   settle: {
     title: "{from} betaler {to}",
@@ -210,6 +217,8 @@ const nb: Dict = {
       "Sjekk mottakerens navn i betalingsappen din før du betaler — alle med lenken kan endre betalingsopplysningene her, så betal på eget ansvar.",
     reminder:
       "Husk å trykke «Merk som betalt» når betalingen er gjort — vi får ingen bekreftelse automatisk.",
+    earlyWarning:
+      "Ikke alle har sett splitten ennå — hvis noen legger inn flere utgifter må du kanskje betale igjen senere.",
   },
   entryD: {
     editTransfer: "Rediger overføring",

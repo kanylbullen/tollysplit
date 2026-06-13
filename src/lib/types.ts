@@ -17,6 +17,10 @@ export type Participant = {
   is_me: boolean;
   /** Secure invite-mode: this slot has a reserved email. */
   has_invite: boolean;
+  /** Set when this participant first opened the split. */
+  seen_at: string | null;
+  /** Set when this participant marked themselves done adding expenses. */
+  ready_at: string | null;
 };
 
 export type AccessMode = "all" | "payers";
