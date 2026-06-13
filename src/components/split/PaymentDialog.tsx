@@ -46,10 +46,13 @@ export function PaymentDialog({
   open,
   onClose,
   payment,
+  warnEarly = false,
 }: {
   open: boolean;
   onClose: () => void;
   payment: Payment | null;
+  /** True when not everyone has seen the split yet — paying may be premature. */
+  warnEarly?: boolean;
 }) {
   const { dict, t, locale } = useI18n();
   const [copied, setCopied] = useState(false);
@@ -269,6 +272,11 @@ export function PaymentDialog({
           </div>
         )}
 
+        {warnEarly && (
+          <p className="w-full rounded-xl bg-amber-50 px-3.5 py-2.5 text-left text-xs font-semibold text-amber-800">
+            ⏳ {dict.pay.earlyWarning}
+          </p>
+        )}
         {payment.changedAt && (
           // text-red-700, not -800: the dark theme flips red-50/red-700 in
           // globals.css; -800 would stay dark-on-dark.

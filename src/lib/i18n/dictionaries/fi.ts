@@ -158,6 +158,13 @@ const fi: Dict = {
     perPerson: "Saldo henkilöittäin",
     share: "osuus {amount}",
     totalSpent: "Yhteensä käytetty",
+    statusHeading: "Ketkä ovat mukana",
+    statusReady: "Valmis",
+    statusSeen: "Nähnyt",
+    statusUnseen: "Ei vielä nähnyt",
+    readyMark: "Olen valmis — ei enempää kuluja",
+    readyUndo: "Kumoa — minulla on lisää kuluja",
+    notAllSeenHint: "Kaikki eivät ole vielä nähneet jakoa.",
   },
   settle: {
     title: "{from} maksaa {to}",
@@ -210,6 +217,8 @@ const fi: Dict = {
       "Tarkista vastaanottajan nimi maksusovelluksessasi ennen maksamista — kuka tahansa linkillä voi muuttaa maksutietoja täällä, joten maksa omalla vastuullasi.",
     reminder:
       "Muista painaa ”Merkitse maksetuksi”, kun maksu on tehty — emme saa vahvistusta automaattisesti.",
+    earlyWarning:
+      "Kaikki eivät ole vielä nähneet jakoa — jos joku lisää kuluja, saatat joutua maksamaan uudelleen myöhemmin.",
   },
   entryD: {
     editTransfer: "Muokkaa siirtoa",

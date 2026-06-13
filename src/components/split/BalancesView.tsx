@@ -10,7 +10,11 @@ import {
   shareOfTotal,
   totalSpent,
 } from "@/lib/money";
-import { saveEntryAction, setPaymentMethodsAction } from "@/app/k/[key]/actions";
+import {
+  saveEntryAction,
+  setPaymentMethodsAction,
+  setReadyAction,
+} from "@/app/k/[key]/actions";
 import {
   PAYMENT_META,
   PAYMENT_TYPES,
@@ -73,6 +77,20 @@ export function BalancesView({
   const me = meId ? participants.find((p) => p.id === meId) : null;
   const showPaymentPrompt =
     me && me.payment_methods.length === 0 && (bal.get(me.id) ?? 0) > 0;
+
+  // Has everyone weighed in? "ready" implies seen. Used to warn before paying
+  // too early (someone might still add expenses).
+  const engaged = (p: Participant) => Boolean(p.seen_at || p.ready_at);
+  const allSeen = participants.every(engaged);
+
+  function toggleReady() {
+    if (!me) return;
+    setError(null);
+    startTransition(async () => {
+      const result = await setReadyAction(splitKey, me.id, !me.ready_at);
+      if (!result.ok) setError(te(result.error));
+    });
+  }
 
   function saveMyPayment() {
     if (!me) return;
@@ -315,6 +333,52 @@ export function BalancesView({
         </div>
       </section>
 
+      <section>
+        <h3 className="mb-2 px-1 text-sm font-bold uppercase tracking-wide text-stone-400">
+          {dict.bal.statusHeading}
+        </h3>
+        <div className="overflow-hidden rounded-2xl border border-stone-200/80 bg-surface shadow-sm">
+          {participants.map((p, i) => (
+            <div
+              key={p.id}
+              className={`flex items-center justify-between gap-3 px-4 py-2.5 ${i > 0 ? "border-t border-stone-100" : ""}`}
+            >
+              <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                {p.name}
+                {meId === p.id && (
+                  <span className="ml-1.5 rounded-md bg-primary-soft px-1.5 py-0.5 text-xs font-bold text-primary-dark">
+                    {dict.common.you}
+                  </span>
+                )}
+              </span>
+              <span className="shrink-0 text-xs font-semibold">
+                {p.ready_at ? (
+                  <span className="text-positive">✓ {dict.bal.statusReady}</span>
+                ) : p.seen_at ? (
+                  <span className="text-stone-500">{dict.bal.statusSeen}</span>
+                ) : (
+                  <span className="text-stone-400">{dict.bal.statusUnseen}</span>
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
+        {me && (
+          <button
+            onClick={toggleReady}
+            disabled={pending}
+            className="mt-2 text-sm font-semibold text-primary hover:text-primary-dark disabled:opacity-50"
+          >
+            {me.ready_at ? dict.bal.readyUndo : dict.bal.readyMark}
+          </button>
+        )}
+        {!allSeen && (
+          <p className="mt-1.5 px-1 text-xs text-stone-400">
+            {dict.bal.notAllSeenHint}
+          </p>
+        )}
+      </section>
+
       <div className="rounded-2xl border border-stone-200/80 bg-surface p-5 text-center shadow-sm">
         <p className="text-sm font-medium text-stone-400">{dict.bal.totalSpent}</p>
         <p className="text-3xl font-black tracking-tight">{money(total)}</p>
@@ -324,6 +388,7 @@ export function BalancesView({
         open={payOpen}
         onClose={() => setPayOpen(false)}
         payment={payment}
+        warnEarly={!allSeen}
       />
 
       <SettleDialog
@@ -332,6 +397,7 @@ export function BalancesView({
         settlement={settleTarget}
         currency={currency}
         pending={pending}
+        warnEarly={!allSeen}
         onConfirm={(cents) =>
           settleTarget &&
           recordSettlement(

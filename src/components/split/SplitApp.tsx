@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { track } from "@vercel/analytics";
+import { markSeenAction } from "@/app/k/[key]/actions";
 import type { Entry, EntryKind, SplitData } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/client";
 import { EntriesView } from "./EntriesView";
@@ -67,6 +68,18 @@ export function SplitApp({ data, loggedIn }: { data: SplitData; loggedIn: boolea
     }
     setIdentityLoaded(true);
   }, [storageKey, participants, secure, split.me_participant]);
+
+  // Record that this participant has opened the split (once per identity).
+  const seenMarked = useRef<string | null>(null);
+  useEffect(() => {
+    if (meId && seenMarked.current !== meId) {
+      const me = participants.find((p) => p.id === meId);
+      if (me && !me.seen_at) {
+        seenMarked.current = meId;
+        void markSeenAction(split.key, meId);
+      }
+    }
+  }, [meId, participants, split.key]);
 
   function pickIdentity(id: string) {
     localStorage.setItem(storageKey, id);

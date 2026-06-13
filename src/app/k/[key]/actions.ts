@@ -60,6 +60,21 @@ export async function unclaimParticipantAction(key: string): Promise<ActionResul
   return rpc(key, "unclaim_participant", { p_key: key });
 }
 
+export async function markSeenAction(
+  key: string,
+  participantId: string
+): Promise<ActionResult> {
+  return rpc(key, "mark_seen", { p_key: key, p_id: participantId });
+}
+
+export async function setReadyAction(
+  key: string,
+  participantId: string,
+  on: boolean
+): Promise<ActionResult> {
+  return rpc(key, "set_ready", { p_key: key, p_id: participantId, p_on: on });
+}
+
 export type EntryInput = {
   id?: string;
   kind: "expense" | "transfer";

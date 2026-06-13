@@ -20,6 +20,7 @@ export function SettleDialog({
   settlement,
   currency,
   pending,
+  warnEarly = false,
   onConfirm,
 }: {
   open: boolean;
@@ -27,6 +28,8 @@ export function SettleDialog({
   settlement: Settlement | null;
   currency: string;
   pending: boolean;
+  /** True when not everyone has seen the split yet. */
+  warnEarly?: boolean;
   onConfirm: (cents: number) => void;
 }) {
   const { dict, t, locale } = useI18n();
@@ -74,6 +77,12 @@ export function SettleDialog({
             amount: formatMoney(full, currency, intl),
           })}
         </p>
+
+        {warnEarly && (
+          <p className="rounded-xl bg-amber-50 px-3.5 py-2.5 text-xs font-semibold text-amber-800">
+            ⏳ {dict.pay.earlyWarning}
+          </p>
+        )}
 
         <div className="flex gap-1 rounded-xl bg-stone-100 p-1">
           <button

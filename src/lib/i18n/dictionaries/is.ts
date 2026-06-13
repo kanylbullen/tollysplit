@@ -158,6 +158,13 @@ const is: Dict = {
     perPerson: "Staða á mann",
     share: "hlutur {amount}",
     totalSpent: "Samtals eytt",
+    statusHeading: "Hverjir eru með",
+    statusReady: "Lokið",
+    statusSeen: "Séð",
+    statusUnseen: "Ekki séð enn",
+    readyMark: "Ég er búin(n) — engin fleiri útgjöld",
+    readyUndo: "Afturkalla — ég á fleiri útgjöld",
+    notAllSeenHint: "Ekki hafa allir séð skiptinguna enn.",
   },
   settle: {
     title: "{from} greiðir {to}",
@@ -210,6 +217,8 @@ const is: Dict = {
       "Athugaðu nafn viðtakandans í greiðsluappinu þínu áður en þú borgar — allir með hlekkinn geta breytt greiðsluupplýsingunum hér, svo greiddu á eigin ábyrgð.",
     reminder:
       "Mundu að ýta á „Merkja sem greitt“ þegar greiðslan er gerð — við fáum enga staðfestingu sjálfkrafa.",
+    earlyWarning:
+      "Ekki hafa allir séð skiptinguna enn — ef einhver bætir við útgjöldum gætirðu þurft að greiða aftur síðar.",
   },
   entryD: {
     editTransfer: "Breyta millifærslu",
