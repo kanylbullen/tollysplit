@@ -177,6 +177,7 @@ const fi: Dict = {
     walletSent: "Maksu lähetetty ✓ — muista merkitä se maksetuksi.",
     walletError: "Maksu peruutettiin tai epäonnistui.",
     walletOr: "— tai maksa manuaalisesti —",
+    walletDisconnect: "Vaihda lompakko",
     changedWarning:
       "Saajan maksutietoja muutettiin {date}, ja ne eroavat alun perin syötetyistä. Varmista saajalta toista kanavaa pitkin ennen maksamista.",
     openOther:

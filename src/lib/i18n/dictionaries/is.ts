@@ -177,6 +177,7 @@ const is: Dict = {
     walletSent: "Greiðsla send ✓ — mundu að merkja hana sem greidda.",
     walletError: "Greiðslan var hætt við eða mistókst.",
     walletOr: "— eða greiddu handvirkt —",
+    walletDisconnect: "Skipta um veski",
     changedWarning:
       "Greiðsluupplýsingum viðtakanda var breytt {date} og þær eru aðrar en þær sem fyrst voru skráðar. Staðfestu við viðtakanda í gegnum aðra leið áður en þú greiðir.",
     openOther:

@@ -177,6 +177,7 @@ const en: Dict = {
     walletSent: "Payment sent ✓ — don't forget to mark it paid.",
     walletError: "The payment was cancelled or failed.",
     walletOr: "— or pay manually —",
+    walletDisconnect: "Switch wallet",
     changedWarning:
       "The recipient's payment details were changed on {date} and differ from what was first entered. Confirm with the recipient through another channel before paying.",
     openOther:

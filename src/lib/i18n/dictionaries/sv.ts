@@ -177,6 +177,7 @@ const sv = {
     walletSent: "Betalning skickad ✓ — glöm inte att markera den som betald.",
     walletError: "Betalningen avbröts eller misslyckades.",
     walletOr: "— eller betala manuellt —",
+    walletDisconnect: "Byt plånbok",
     changedWarning:
       "Mottagarens betaluppgifter ändrades {date} och skiljer sig från de som först lades in. Bekräfta med mottagaren via en annan kanal innan du betalar.",
     openOther:

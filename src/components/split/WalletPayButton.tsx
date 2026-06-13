@@ -5,6 +5,7 @@ import { track } from "@vercel/analytics";
 import { useAppKit } from "@reown/appkit/react";
 import {
   useAccount,
+  useDisconnect,
   useSwitchChain,
   useWriteContract,
   useWaitForTransactionReceipt,
@@ -29,7 +30,8 @@ export function WalletPayButton({
 }) {
   const { dict, t } = useI18n();
   const { open } = useAppKit();
-  const { isConnected, chainId } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
+  const { disconnect } = useDisconnect();
   const { switchChainAsync } = useSwitchChain();
   const { writeContractAsync } = useWriteContract();
 
@@ -107,19 +109,36 @@ export function WalletPayButton({
           {dict.pay.walletConnect}
         </button>
       ) : (
-        <button
-          onClick={pay}
-          disabled={busy || confirming || usd === null}
-          className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-white shadow-md transition-colors hover:bg-primary-dark disabled:opacity-50"
-        >
-          {confirming
-            ? dict.pay.walletConfirming
-            : busy
-              ? dict.pay.walletAwaiting
-              : usdcLabel
-                ? t(dict.pay.walletPay, { amount: usdcLabel })
-                : dict.pay.walletPayGeneric}
-        </button>
+        <>
+          <button
+            onClick={pay}
+            disabled={busy || confirming || usd === null}
+            className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-white shadow-md transition-colors hover:bg-primary-dark disabled:opacity-50"
+          >
+            {confirming
+              ? dict.pay.walletConfirming
+              : busy
+                ? dict.pay.walletAwaiting
+                : usdcLabel
+                  ? t(dict.pay.walletPay, { amount: usdcLabel })
+                  : dict.pay.walletPayGeneric}
+          </button>
+          <div className="flex items-center justify-center gap-1.5 text-xs text-stone-400">
+            {address && (
+              <span className="font-mono">
+                {address.slice(0, 6)}…{address.slice(-4)}
+              </span>
+            )}
+            <span>·</span>
+            <button
+              onClick={() => disconnect()}
+              disabled={busy || confirming}
+              className="font-semibold text-stone-500 underline hover:text-primary-dark disabled:opacity-50"
+            >
+              {dict.pay.walletDisconnect}
+            </button>
+          </div>
+        </>
       )}
 
       {error && <p className="text-center text-sm text-negative">{error}</p>}

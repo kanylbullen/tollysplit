@@ -177,6 +177,7 @@ const nb: Dict = {
     walletSent: "Betaling sendt ✓ — husk å merke den som betalt.",
     walletError: "Betalingen ble avbrutt eller mislyktes.",
     walletOr: "— eller betal manuelt —",
+    walletDisconnect: "Bytt lommebok",
     changedWarning:
       "Mottakerens betalingsopplysninger ble endret {date} og avviker fra det som først ble lagt inn. Bekreft med mottakeren via en annen kanal før du betaler.",
     openOther:
