@@ -35,6 +35,7 @@ const da: Dict = {
     tagline: "tollysplit · lavet med kærlighed, kaffe og øl",
     privacy: "privatliv",
     cookies: "cookies",
+    openSource: "Open source på GitHub",
   },
   mySplits: {
     title: "Dine tollysplits",

@@ -12,10 +12,27 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+const DESCRIPTION =
+  "Split expenses with friends without the fuss. Create a split, share the link and let everyone add what they paid — no accounts needed.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://tollysplit.xuper.fun"),
   title: "Tollysplit — split shared expenses",
-  description:
-    "Split expenses with friends without the fuss. Create a split, share the link and let everyone add what they paid.",
+  description: DESCRIPTION,
+  // The opengraph-image / twitter-image files attach the card automatically.
+  openGraph: {
+    type: "website",
+    siteName: "Tollysplit",
+    title: "Tollysplit — split shared expenses",
+    description: DESCRIPTION,
+    url: "/",
+    locale: "en",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tollysplit — split shared expenses",
+    description: DESCRIPTION,
+  },
 };
 
 export const viewport: Viewport = {

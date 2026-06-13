@@ -35,6 +35,7 @@ const fi: Dict = {
     tagline: "tollysplit · tehty rakkaudella, kahvilla ja oluella",
     privacy: "tietosuoja",
     cookies: "evästeet",
+    openSource: "Avoin lähdekoodi GitHubissa",
   },
   mySplits: {
     title: "Sinun tollysplitisi",

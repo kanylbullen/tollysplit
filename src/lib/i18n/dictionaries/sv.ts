@@ -35,6 +35,7 @@ const sv = {
     tagline: "tollysplit · byggd med kärlek, kaffe och öl",
     privacy: "integritetspolicy",
     cookies: "cookies",
+    openSource: "Öppen källkod på GitHub",
   },
   mySplits: {
     title: "Dina tollysplits",
