@@ -12,6 +12,7 @@ import {
   setAutoPurgeAction,
   setKeepPaymentAction,
   setPaymentMethodsAction,
+  unclaimParticipantAction,
   updateSplitAction,
 } from "@/app/k/[key]/actions";
 import {
@@ -192,24 +193,28 @@ export function SettingsDialog({
                         </span>
                       )}
                     </span>
-                    <button
-                      onClick={() => {
-                        setRenaming(p.id);
-                        setRenameText(p.name);
-                      }}
-                      className="text-sm text-stone-400 hover:text-ink"
-                    >
-                      {dict.set.rename}
-                    </button>
-                    <button
-                      onClick={() =>
-                        run(() => deleteParticipantAction(split.key, p.id))
-                      }
-                      disabled={pending}
-                      className="text-sm text-stone-400 hover:text-negative"
-                    >
-                      {dict.common.delete}
-                    </button>
+                    {(!split.secure || split.is_creator) && (
+                      <>
+                        <button
+                          onClick={() => {
+                            setRenaming(p.id);
+                            setRenameText(p.name);
+                          }}
+                          className="text-sm text-stone-400 hover:text-ink"
+                        >
+                          {dict.set.rename}
+                        </button>
+                        <button
+                          onClick={() =>
+                            run(() => deleteParticipantAction(split.key, p.id))
+                          }
+                          disabled={pending}
+                          className="text-sm text-stone-400 hover:text-negative"
+                        >
+                          {dict.common.delete}
+                        </button>
+                      </>
+                    )}
                   </>
                 )}
               </div>
@@ -225,21 +230,24 @@ export function SettingsDialog({
                         <span className="text-stone-500">
                           {formatPayment(m.type, m.value)}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => removeMethod(p, idx)}
-                          disabled={pending}
-                          aria-label={dict.common.delete}
-                          className="-mr-0.5 ml-0.5 text-base leading-none text-stone-400 hover:text-negative"
-                        >
-                          ×
-                        </button>
+                        {(!split.secure || p.is_me) && (
+                          <button
+                            type="button"
+                            onClick={() => removeMethod(p, idx)}
+                            disabled={pending}
+                            aria-label={dict.common.delete}
+                            className="-mr-0.5 ml-0.5 text-base leading-none text-stone-400 hover:text-negative"
+                          >
+                            ×
+                          </button>
+                        )}
                       </span>
                     ))}
                   </div>
                 )}
 
-                {payEditing === p.id ? (
+                {(!split.secure || p.is_me) &&
+                  (payEditing === p.id ? (
                   <form
                     className="flex gap-2"
                     onSubmit={(e) => {
@@ -299,35 +307,37 @@ export function SettingsDialog({
                         : dict.set.payAdd}
                     </button>
                   )
-                )}
+                  ))}
               </div>
               </div>
             ))}
           </div>
-          <form
-            className="mt-2 flex gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const name = newName.trim();
-              if (!name) return;
-              run(() => addParticipantAction(split.key, name));
-              setNewName("");
-            }}
-          >
-            <Input
-              placeholder={dict.set.newParticipant}
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              maxLength={40}
-            />
-            <Button
-              type="submit"
-              variant="secondary"
-              disabled={pending || newName.trim().length === 0}
+          {(!split.secure || split.is_creator) && (
+            <form
+              className="mt-2 flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const name = newName.trim();
+                if (!name) return;
+                run(() => addParticipantAction(split.key, name));
+                setNewName("");
+              }}
             >
-              {dict.set.add}
-            </Button>
-          </form>
+              <Input
+                placeholder={dict.set.newParticipant}
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                maxLength={40}
+              />
+              <Button
+                type="submit"
+                variant="secondary"
+                disabled={pending || newName.trim().length === 0}
+              >
+                {dict.set.add}
+              </Button>
+            </form>
+          )}
           <p className="mt-1.5 text-xs text-stone-400">
             {dict.set.cantDeleteHint}
           </p>
@@ -431,17 +441,23 @@ export function SettingsDialog({
           </p>
         </section>
 
-        <section>
-          <button
-            onClick={() => {
-              onIdentityReset();
-              onClose();
-            }}
-            className="text-sm font-medium text-primary hover:text-primary-dark"
-          >
-            {dict.set.changeIdentity}
-          </button>
-        </section>
+        {(!split.secure || meId) && (
+          <section>
+            <button
+              onClick={() => {
+                if (split.secure) {
+                  run(() => unclaimParticipantAction(split.key));
+                } else {
+                  onIdentityReset();
+                }
+                onClose();
+              }}
+              className="text-sm font-medium text-primary hover:text-primary-dark"
+            >
+              {split.secure ? dict.set.leaveSplit : dict.set.changeIdentity}
+            </button>
+          </section>
+        )}
 
         {error && <p className="text-sm text-negative">{error}</p>}
       </div>

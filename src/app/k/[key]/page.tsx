@@ -3,10 +3,15 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import type { SplitData } from "@/lib/types";
 import { SplitApp } from "@/components/split/SplitApp";
+import { MembersOnly } from "@/components/split/MembersOnly";
 
-async function fetchSplit(key: string): Promise<SplitData | null> {
+type Fetched = SplitData | "forbidden" | null;
+
+async function fetchSplit(key: string): Promise<Fetched> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("split_data", { p_key: key });
+  // A members-only secure split returns { forbidden: true } to non-members.
+  if (data && (data as { forbidden?: boolean }).forbidden) return "forbidden";
   // Tolerate both behaviours: the old split_data raised (→ error) on an
   // unknown key; the new one returns { not_found: true } so it can log the
   // failed lookup for enumeration monitoring.
@@ -26,7 +31,10 @@ export async function generateMetadata({
   const inviteDescription =
     "You've been invited to split shared expenses on Tollysplit. Open the link to add what you paid and see who owes what.";
   return {
-    title: data ? `${data.split.title} — Tollysplit` : "Tollysplit",
+    title:
+      data && data !== "forbidden"
+        ? `${data.split.title} — Tollysplit`
+        : "Tollysplit",
     robots: { index: false, follow: false },
     openGraph: {
       type: "website",
@@ -49,7 +57,13 @@ export default async function SplitPage({
 }) {
   const { key } = await params;
   const data = await fetchSplit(key);
+  if (data === "forbidden") return <MembersOnly splitKey={key} />;
   if (!data) notFound();
 
-  return <SplitApp data={data} />;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return <SplitApp data={data} loggedIn={Boolean(user)} />;
 }

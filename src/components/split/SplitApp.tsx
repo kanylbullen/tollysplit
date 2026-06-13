@@ -11,13 +11,15 @@ import { EntryDialog } from "./EntryDialog";
 import { IdentityDialog } from "./IdentityDialog";
 import { SettingsDialog } from "./SettingsDialog";
 import { WalletProvider } from "./WalletProvider";
+import { ClaimBanner } from "./ClaimBanner";
 
 type Tab = "entries" | "balances";
 
-export function SplitApp({ data }: { data: SplitData }) {
+export function SplitApp({ data, loggedIn }: { data: SplitData; loggedIn: boolean }) {
   const { dict } = useI18n();
   const { split, participants, entries } = data;
   const storageKey = `tollesplit:me:${split.key}`;
+  const secure = split.secure;
 
   const [tab, setTab] = useState<Tab>("balances");
   const [meId, setMeId] = useState<string | null>(null);
@@ -50,6 +52,13 @@ export function SplitApp({ data }: { data: SplitData }) {
   }, [split.key, split.title]);
 
   useEffect(() => {
+    // Secure splits: identity is server-driven (your claimed slot), not a
+    // device-local pick. No identity dialog — claiming is the gate.
+    if (secure) {
+      setMeId(split.me_participant);
+      setIdentityLoaded(true);
+      return;
+    }
     const stored = localStorage.getItem(storageKey);
     if (stored && (stored === "viewer" || participants.some((p) => p.id === stored))) {
       setMeId(stored === "viewer" ? null : stored);
@@ -57,7 +66,7 @@ export function SplitApp({ data }: { data: SplitData }) {
       setIdentityOpen(true);
     }
     setIdentityLoaded(true);
-  }, [storageKey, participants]);
+  }, [storageKey, participants, secure, split.me_participant]);
 
   function pickIdentity(id: string) {
     localStorage.setItem(storageKey, id);
@@ -156,6 +165,13 @@ export function SplitApp({ data }: { data: SplitData }) {
       </header>
 
       <div className="pb-28">
+        {secure && !meId && (
+          <ClaimBanner
+            splitKey={split.key}
+            participants={participants}
+            loggedIn={loggedIn}
+          />
+        )}
         {tab === "entries" ? (
           <EntriesView
             entries={entries}
@@ -181,26 +197,30 @@ export function SplitApp({ data }: { data: SplitData }) {
         )}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-stone-200/60 bg-cream/90 px-4 py-3 backdrop-blur">
-        <div className="mx-auto flex max-w-2xl gap-2">
-          <button
-            onClick={() =>
-              setEntryDialog({ open: true, entry: null, kind: "expense" })
-            }
-            className="flex-1 rounded-xl bg-primary px-4 py-3 text-base font-bold text-white shadow-md transition-colors hover:bg-primary-dark"
-          >
-            {dict.split.newExpense}
-          </button>
-          <button
-            onClick={() =>
-              setEntryDialog({ open: true, entry: null, kind: "transfer" })
-            }
-            className="rounded-xl border border-stone-300 bg-surface px-4 py-3 text-base font-semibold text-ink transition-colors hover:bg-stone-50"
-          >
-            {dict.split.transfer}
-          </button>
+      {/* Secure splits: you must claim a slot before you can add anything
+          (the server enforces this too). */}
+      {!(secure && !meId) && (
+        <div className="fixed inset-x-0 bottom-0 z-10 border-t border-stone-200/60 bg-cream/90 px-4 py-3 backdrop-blur">
+          <div className="mx-auto flex max-w-2xl gap-2">
+            <button
+              onClick={() =>
+                setEntryDialog({ open: true, entry: null, kind: "expense" })
+              }
+              className="flex-1 rounded-xl bg-primary px-4 py-3 text-base font-bold text-white shadow-md transition-colors hover:bg-primary-dark"
+            >
+              {dict.split.newExpense}
+            </button>
+            <button
+              onClick={() =>
+                setEntryDialog({ open: true, entry: null, kind: "transfer" })
+              }
+              className="rounded-xl border border-stone-300 bg-surface px-4 py-3 text-base font-semibold text-ink transition-colors hover:bg-stone-50"
+            >
+              {dict.split.transfer}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       <EntryDialog
         open={entryDialog.open}
@@ -211,12 +231,15 @@ export function SplitApp({ data }: { data: SplitData }) {
         entry={entryDialog.entry}
         initialKind={entryDialog.kind}
         meId={meId}
+        lockPayer={secure}
       />
-      <IdentityDialog
-        open={identityLoaded && identityOpen}
-        participants={participants}
-        onPick={pickIdentity}
-      />
+      {!secure && (
+        <IdentityDialog
+          open={identityLoaded && identityOpen}
+          participants={participants}
+          onPick={pickIdentity}
+        />
+      )}
       <SettingsDialog
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
