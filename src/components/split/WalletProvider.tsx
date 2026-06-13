@@ -21,6 +21,12 @@ if (wagmiAdapter && projectId) {
       icons: ["https://tollysplit.xuper.fun/icon.svg"],
     },
     features: { analytics: false, email: false, socials: false },
+    // Match the app: Geist (the same --font-geist-sans set on <html>) and our
+    // teal accent. themeMode auto-follows the user's light/dark preference.
+    themeVariables: {
+      "--w3m-font-family": "var(--font-geist-sans), system-ui, sans-serif",
+      "--w3m-accent": "#14b8a6",
+    },
   });
 }
 
